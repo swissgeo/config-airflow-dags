@@ -27,17 +27,37 @@ def iceberg_catalog(region: str, table_bucket_arn: str) -> Generator[Catalog]:
 
     logger.info("Loading catalog for region {region} for bucket {table_bucket_arn}")
 
-    catalog = pyiceberg_load_catalog(
-        "s3tables",
-        **{
-            "type": "rest",
-            "warehouse": table_bucket_arn,
-            "uri": f"https://s3tables.{region}.amazonaws.com/iceberg",
-            "rest.sigv4-enabled": "true",
-            "rest.signing-name": "s3tables",
-            "rest.signing-region": region,
-        },
-    )
+    # provide the possibility to connect either to
+    # * a local iceberg API for testing, or
+    # * s3tables in the cloud
+
+    uri = os.environ.get("ICEBERG_REST_URI", f"https://s3tables.{region}.amazonaws.com/iceberg")
+    warehouse = os.environ.get("ICEBERG_WAREHOUSE", table_bucket_arn)
+
+    props: dict[str, str] = {"type": "rest", "warehouse": warehouse, "uri": uri}
+
+    if "ICEBERG_REST_URI" in os.environ:
+        # connecting locally to iceberg
+        props.update(
+            {
+                "s3.endpoint": os.environ["AWS_ENDPOINT_URL"],
+                "s3.path-style-access": "true",
+                "s3.access-key-id": os.environ["AWS_ACCESS_KEY_ID"],
+                "s3.secret-access-key": os.environ["AWS_SECRET_ACCESS_KEY"],
+                "s3.region": os.environ.get("AWS_REGION", "eu-central-1"),
+            }
+        )
+    else:
+        # connecting in the cloud to s3tables
+        props.update(
+            {
+                "rest.sigv4-enabled": "true",
+                "rest.signing-name": "s3tables",
+                "rest.signing-region": region,
+            }
+        )
+
+    catalog = pyiceberg_load_catalog("s3tables", **props)
 
     try:
         yield catalog
