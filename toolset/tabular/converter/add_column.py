@@ -1,6 +1,4 @@
-import json
 import logging
-import re
 from collections.abc import Callable
 
 import pyarrow as pa
@@ -54,37 +52,18 @@ def add_column(
             val = value_callback(row_data)
             values.append(val)
 
-    logger.info(f"Going to add values (first 10) {values[0:10]}")
-
-    # the json column type is an extension and is not covered by the type aliases in pyarrow
-    # therefore we need to import the extension type directly and call it with the
-    # appropriate subtype, extracted from the regex match
-    json_column = re.match(r"json\((.*)\)", column_type)
-    if json_column:
-        logger.info(f"Going to add json column '{column_name}' with type {column_type}")
-        try:
-            json_type = pa.json_
-            json_subtype = getattr(pa, json_column.group(1))
-            column_type = json_type(json_subtype())
-            logger.info(
-                f"Determined json column '{column_name}' with subtype {json_column.group(1)}"
-            )
-
-            logger.info(f"Going to convert the values to JSON strings")
-            values = pa.array([json.dumps(val) for val in values], type=column_type)
-        except AttributeError as e:
-            raise ValueError(f"Invalid json subtype: {json_column.groups()}") from e
+    logger.info("Going to add values (first 10) {values[0:10]}")
 
     # ordinary pyarrow type, it can be used via the type alis
     field = pa.field(column_name, column_type)
 
     if column_position is not None:
         logger.info(
-            f"Going to add column '{column_name}' at position {column_position} with field type {field} with values {values[:10]}"
+            "Going to add column '{column_name}' at position {column_position} with field type {field} with values {values[:10]}"
         )
         return data.add_column(column_position, field, [values])
     else:  # noqa: RET505
         logger.info(
-            f"Going to append column '{column_name}' with field type {field} with values {values[:10]}"
+            "Going to append column '{column_name}' with field type {field} with values {values[:10]}"
         )
         return data.append_column(field, [values])
