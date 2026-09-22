@@ -25,7 +25,7 @@ def read_from_s3tables(bucket: Bucket, namespace: str, table_name: str) -> pa.Ta
 
     table_bucket_arn = get_table_bucket_arn(bucket)
 
-    logger.info(f"Reading table {table_identifier} from s3 table bucket {table_bucket_arn}")
+    logger.info("Reading table %s from s3 table bucket %s", table_identifier, table_bucket_arn)
 
     with iceberg_catalog(region, table_bucket_arn) as catalog:
         if not catalog.table_exists(table_identifier):
