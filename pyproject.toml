@@ -107,6 +107,7 @@ root = ["toolset"]
 [tool.pytest]
 pythonpath = ["toolset"]
 python_files = ["test_*.py"]
+env_files = [".env.default"]
 
 
 #==============================================================================
