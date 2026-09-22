@@ -33,7 +33,7 @@ def test_convert_column_date_conversion():
 
     # we need to ignore the type checker here because pyarrow is generating these
     # functions at runtime or something
-    func = pc.strptime  # type: ignore
+    func = pc.strptime  # ty: ignore[unresolved-attribute]
 
     result = convert_column(
         data,

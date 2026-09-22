@@ -59,11 +59,18 @@ def add_column(
 
     if column_position is not None:
         logger.info(
-            "Going to add column '{column_name}' at position {column_position} with field type {field} with values {values[:10]}"
+            "Going to add column '%s' at position %s with field type %s with values %s",
+            column_name,
+            column_position,
+            field,
+            values[:10],
         )
         return data.add_column(column_position, field, [values])
     else:  # noqa: RET505
         logger.info(
-            "Going to append column '{column_name}' with field type {field} with values {values[:10]}"
+            "Going to append column '%s' with field type %s with values %s",
+            column_name,
+            field,
+            values[:10],
         )
         return data.append_column(field, [values])

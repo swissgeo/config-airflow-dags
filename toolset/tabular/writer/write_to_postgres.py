@@ -39,7 +39,7 @@ def write_to_postgres(
 
     schema_names = list(data.schema.names)
     cols = [sql.Identifier(name) for name in schema_names]
-    logger.info(f"Going to write columns: {schema_names}")
+    logger.info("Going to write columns: %s", schema_names)
 
     with conn.cursor() as cursor:
         logger.info("Truncating table")
@@ -54,7 +54,8 @@ def write_to_postgres(
 
         # Stream each Arrow record batch into COPY
         for batch_counter, batch in enumerate(data.to_batches(max_chunksize=25)):
-            logger.info(f"Inserting batch {batch_counter}")
+            logger.info("Inserting batch %s", batch_counter)
+
             # open a COPY context for this batch
             logger.debug("COPY query: %s", copy_sql)
 

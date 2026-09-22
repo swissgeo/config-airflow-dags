@@ -43,11 +43,11 @@ def convert_column(
     old_type = data.schema[column_index].type
 
     logger.info(
-        f"Applying {converter.__name__} to column '{column_name}' with args {converter_args}"
+        "Applying %s to column '%s' with args %s", converter.__name__, column_name, converter_args
     )
     new_column = converter(data[column_name], **converter_args)
 
-    logger.info(f"Column '{column_name}' converted: {old_type} -> {new_column.type}")
+    logger.info("Column '%s' converted: %s -> %s", column_name, old_type, new_column.type)
 
     # pass the name (str) here, never a Field — let pyarrow infer the type from new_column
     return data.set_column(column_index, column_name, new_column)

@@ -25,7 +25,7 @@ def iceberg_catalog(region: str, table_bucket_arn: str) -> Generator[Catalog]:
     Connect to apache iceberg (s3 tables) and return a handle.
     """
 
-    logger.info(f"Loading catalog for region {region} for bucket {table_bucket_arn}")
+    logger.info("Loading catalog for region {region} for bucket {table_bucket_arn}")
 
     catalog = pyiceberg_load_catalog(
         "s3tables",
@@ -58,8 +58,10 @@ def get_table_bucket_arn(bucket: Bucket) -> str:
     """
     try:
         env_var = _BUCKET_ENV_VARS[bucket]
-    except KeyError:
-        raise ValueError(f"Invalid bucket: {bucket}, expected one of {get_args(Bucket)}") from None
+    except KeyError as e:
+        raise ValueError(
+            f"Invalid bucket: {bucket}, expected one of {_BUCKET_ENV_VARS.keys()}"
+        ) from e
 
     try:
         return os.environ[env_var]

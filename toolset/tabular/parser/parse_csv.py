@@ -17,7 +17,7 @@ def parse_csv(file: typing.IO[bytes], encoding: str, delimiter: str) -> pa.Table
     Returns:
         pa.Table: The parsed CSV data as a PyArrow Table.
     """
-    logger.info(f"Parsing CSV file with encoding {encoding} and delimiter {delimiter}")
+    logger.info("Parsing CSV file with encoding %s and delimiter %s", encoding, delimiter)
 
     # https://arrow.apache.org/docs/python/generated/pyarrow.csv.ReadOptions.html#pyarrow.csv.ReadOptions
     # https://arrow.apache.org/docs/python/generated/pyarrow.csv.ParseOptions.html#pyarrow.csv.ParseOptions

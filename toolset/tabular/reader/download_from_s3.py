@@ -17,7 +17,7 @@ def download_from_s3(file_key: str, bucket_name: str) -> typing.IO[bytes]:
     Returns:
         typing.IO[str]: A file object representing the downloaded file from S3.
     """
-    logger.info(f"Downloading file {file_key} from bucket {bucket_name}")
+    logger.info("Downloading file %s from bucket %s", file_key, bucket_name)
 
     s3_client = boto3.client(
         # TODO Make this configurable
@@ -29,6 +29,7 @@ def download_from_s3(file_key: str, bucket_name: str) -> typing.IO[bytes]:
         response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
         return response["Body"]
     except s3_client.exceptions.NoSuchKey as e:
-        logger.exception(f"File {file_key} not found in bucket {bucket_name}")
+        logger.exception("File %s not found in bucket %s", file_key, bucket_name)
+
         # TODO is this exception type correct?
         raise FileNotFoundError(f"File {file_key} not found in bucket {bucket_name}") from e

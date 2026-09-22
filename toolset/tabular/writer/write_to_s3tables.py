@@ -40,14 +40,15 @@ def write_to_s3tables(
 
         table_schema = table_handle.schema().as_arrow()
 
-        logger.info(f"Casting data schema to {table_schema}")
+        logger.info("Casting data schema to %s", table_schema)
+
         # we need to cast the data into the given schema. The reason for that is that pyarrow's
         # internal schema might have nullable columns (if it's inferred from the data source)
         # whereas the table schema might require these columns to be non-nullable. Casting ensures
         # the data matches the table schema.
         data = data.cast(table_schema)
 
-        logger.info(f"Writing table {table_handle.name()} to S3 tables catalog")
+        logger.info("Writing table %s to S3 tables catalog", table_handle.name())
 
         table_handle.overwrite(df=data)
 

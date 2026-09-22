@@ -15,6 +15,6 @@ def drop_columns(table: pa.Table, columns: list[str]) -> pa.Table:
     Returns:
         pa.Table: The table with the specified columns dropped.
     """
-    logger.info(f"Going to drop columns: {columns}")
+    logger.info("Going to drop columns: %s", columns)
 
     return table.drop_columns(columns)
