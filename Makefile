@@ -124,6 +124,10 @@ lint: ## Run the linter and type checker on the code base
 	$(RUFF) check
 	$(TY) check
 
+.PHONY: start-test-containers
+start-test-containers: ## Start the test containers
+	docker compose up -d
+
 
 .PHONY: test-ci
 test-ci: ## Run tests in the CI
