@@ -2,7 +2,6 @@ import logging
 import os
 
 import pyarrow as pa
-from pyiceberg.typedef import Identifier
 
 from tabular._shared.s3tables import Bucket, get_table_bucket_arn, iceberg_catalog
 
@@ -18,7 +17,7 @@ def write_to_s3tables(
     bucket: Bucket,
     namespace: str,
     table_name: str,
-) -> Identifier:
+) -> pa.Table:
     """
     Writes data to an S3 table using PyIceberg.
 
@@ -30,7 +29,7 @@ def write_to_s3tables(
         namespace: The namespace of the table (usually name connected to the dataset)
         table_name: The name of the table to write to
     Returns:
-        The name of the S3 table
+        The data itself again in pyarrow format
     """
     region = os.environ.get("AWS_REGION", "eu-central-1")
 
@@ -42,11 +41,12 @@ def write_to_s3tables(
 
         logger.info("Casting data schema to %s", table_schema)
 
-        # we need to cast the data into the given schema. The reason for that is that pyarrow's
+        # We need to cast the data into the given schema. The reason for that is that pyarrow's
         # internal schema might have nullable columns (if it's inferred from the data source)
         # whereas the table schema might require these columns to be non-nullable. Casting ensures
         # the data matches the table schema.
-        data = data.cast(table_schema)
+        # We also need to ensure that the column name order is matching
+        data = data.select(table_schema.names).cast(table_schema)
 
         logger.info("Writing table %s to S3 tables catalog", table_handle.name())
 
