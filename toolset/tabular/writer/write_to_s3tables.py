@@ -2,7 +2,6 @@ import logging
 import os
 
 import pyarrow as pa
-from pyiceberg.typedef import Identifier
 
 from tabular._shared.s3tables import Bucket, get_table_bucket_arn, iceberg_catalog
 
@@ -18,7 +17,7 @@ def write_to_s3tables(
     bucket: Bucket,
     namespace: str,
     table_name: str,
-) -> Identifier:
+) -> pa.Table:
     """
     Writes data to an S3 table using PyIceberg.
 
@@ -30,7 +29,7 @@ def write_to_s3tables(
         namespace: The namespace of the table (usually name connected to the dataset)
         table_name: The name of the table to write to
     Returns:
-        The name of the S3 table
+        The data itself again in pyarrow format
     """
     region = os.environ.get("AWS_REGION", "eu-central-1")
 
