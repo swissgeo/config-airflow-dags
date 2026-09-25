@@ -113,7 +113,7 @@ env_files = [".env.default"]
 #==============================================================================
 # Coverage configuration
 [tool.coverage.run]
-omit = ["*/tests/*", "version.py", "otel.py"]
+omit = ["**/tests/*"]
 
 [tool.coverage.report]
 exclude_lines = ["if TYPE_CHECKING:", "pragma: no cover"]
