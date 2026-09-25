@@ -109,6 +109,7 @@ exclude_lines = ["if TYPE_CHECKING:", "pragma: no cover"]
 [dependency-groups]
 dev = [
     "apache-airflow>=3.3.2",
+    "ipdb>=0.13.13",
     "ipython>=9.17.1",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
