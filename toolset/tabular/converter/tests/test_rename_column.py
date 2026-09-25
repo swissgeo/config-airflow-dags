@@ -24,7 +24,7 @@ def test_rename_column_missing_old_name_raises():
     data = pa.table({"a": [1, 2], "b": [3, 4]})
 
     # if the old name doesn't exist, we expect an error to be raised
-    with pytest.raises(ValueError):
+    with pytest.raises(KeyError):
         rename_column(data, "z", "new")
 
 
@@ -36,15 +36,9 @@ def test_rename_column_wrong_type_table():
     assert "column_names" in str(excinfo.value)
 
 
-def test_rename_column_allows_duplicate_target_name():
-    # renaming 'a' to 'b' will produce duplicate column names if 'b' already exists
+def test_rename_column_no_duplicates():
     data = pa.table({"a": [1, 2], "b": [3, 4]})
 
-    result = rename_column(data, "a", "b")
-
-    # both columns named 'b'
-    assert result.column_names.count("b") == 2
-
-    # verify column order and values by index (to distinguish duplicates)
-    assert result.column(0).to_pylist() == [1, 2]  # original 'a'
-    assert result.column(1).to_pylist() == [3, 4]  # original 'b'
+    with pytest.raises(KeyError):
+        # we can't rename a to b because b already exists
+        rename_column(data, "a", "b")
