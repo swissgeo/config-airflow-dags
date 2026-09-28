@@ -10,10 +10,8 @@ Base Definition:
 
 from .parse_csv import parse_csv
 from .parse_parquet import parse_parquet
-from .parse_yaml import parse_yaml
 
 __all__ = [
     "parse_csv",
     "parse_parquet",
-    "parse_yaml",
 ]
