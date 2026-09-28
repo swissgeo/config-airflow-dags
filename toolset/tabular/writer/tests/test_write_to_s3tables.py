@@ -6,7 +6,7 @@ from pyiceberg.exceptions import NoSuchTableError
 from pyiceberg.schema import Schema
 from pyiceberg.types import DateType, IntegerType, NestedField, StringType
 
-from tabular.writer import write_to_s3tables
+from tabular.writer import WriteToS3TablesError, write_to_s3tables
 
 
 @pytest.fixture
@@ -41,7 +41,7 @@ def test_basic_writing_to_s3tables(s3_table):
     )
 
     return_data = write_to_s3tables(
-        data=data,
+        arrow_table=data,
         bucket="raw",
         namespace=s3_table["namespace"],
         table_name=s3_table["table_name"],
@@ -67,7 +67,7 @@ def test_writing_to_inexisting_s3tables(s3_table):
 
     with pytest.raises(NoSuchTableError):
         write_to_s3tables(
-            data=data,
+            arrow_table=data,
             bucket="raw",
             namespace=s3_table["namespace"],
             table_name="inexisting",
@@ -99,7 +99,7 @@ def test_basic_writing_to_s3tables_replaces_existing(s3_table):
     )
 
     write_to_s3tables(
-        data=new_data,
+        arrow_table=new_data,
         bucket="raw",
         namespace=s3_table["namespace"],
         table_name=s3_table["table_name"],
@@ -120,7 +120,7 @@ def test_writing_to_s3tables_with_differing_column_order(s3_table):
     )
 
     write_to_s3tables(
-        data=new_data,
+        arrow_table=new_data,
         bucket="raw",
         namespace=s3_table["namespace"],
         table_name=s3_table["table_name"],
@@ -133,38 +133,55 @@ def test_writing_to_s3tables_with_differing_column_order(s3_table):
 
 
 @pytest.mark.parametrize(
-    "data",
+    ("data", "error"),
     [
-        pa.table(
-            {
-                "point_id": ["abc"],
-                "datetime": [datetime.date(2022, 1, 1)],
-                "value": [1337],
-                "another_column": ["this is too much"],
-            }
+        (
+            pa.table(
+                {
+                    "point_id": ["abc"],
+                    "datetime": [datetime.date(2022, 1, 1)],
+                    "value": [1337],
+                    "another_column": ["this is too much"],
+                }
+            ),
+            "Mismatch in columns. Missing columns: []. Excess columns: ['another_column']",
         ),
-        pa.table(
-            {
-                "point_id": ["abc"],
-                "datetime": ["invalid date string"],
-                "value": [1337],
-            }
+        (
+            pa.table(
+                {
+                    "point_id": ["abc"],
+                    "datetime": ["invalid date string"],
+                    "value": [1337],
+                }
+            ),
+            "Failed to cast data schema",
         ),
-        pa.table(
-            {
-                "point_id": ["abc"],
-                "datetime": [datetime.date(2022, 1, 1)],
-                # not enough columns
-            }
+        (
+            pa.table(
+                {
+                    "point_id": ["abc"],
+                    "datetime": [datetime.date(2022, 1, 1)],
+                    # not enough columns
+                }
+            ),
+            "Mismatch in columns. Missing columns: ['value']. Excess columns: []",
+        ),
+        (
+            pa.table(
+                {"point_id": ["abc"], "datetime": [datetime.date(2022, 1, 1)], "not_value": [1337]}
+            ),
+            "Mismatch in columns. Missing columns: ['value']. Excess columns: ['not_value']",
         ),
     ],
 )
-def test_write_invalid_schema(s3_table, data):
+def test_write_invalid_schema(s3_table, data, error):
     """Test various scenarios where the schema is invalid"""
-    with pytest.raises(ValueError):  # noqa: PT011
+    with pytest.raises(WriteToS3TablesError) as e:
         write_to_s3tables(
-            data=data,
+            arrow_table=data,
             bucket="raw",
             namespace=s3_table["namespace"],
             table_name=s3_table["table_name"],
         )
+
+    assert str(e.value) == error

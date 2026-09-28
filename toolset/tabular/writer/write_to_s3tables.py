@@ -8,8 +8,12 @@ from tabular._shared.s3tables import Bucket, get_table_bucket_arn, iceberg_catal
 logger = logging.getLogger("pipeline_toolset")
 
 
+class WriteToS3TablesError(Exception):
+    """Custom exception for write_to_s3tables errors."""
+
+
 def write_to_s3tables(
-    data: pa.Table,
+    arrow_table: pa.Table,
     bucket: Bucket,
     namespace: str,
     table_name: str,
@@ -35,17 +39,27 @@ def write_to_s3tables(
 
         table_schema = table_handle.schema().as_arrow()
 
-        logger.info("Casting data schema to %s", table_schema)
+        if set(table_schema.names) != set(arrow_table.schema.names):
+            missing_cols = list(set(table_schema.names) - set(arrow_table.schema.names))
+            excess_cols = list(set(arrow_table.schema.names) - set(table_schema.names))
+            raise WriteToS3TablesError(
+                f"Mismatch in columns. Missing columns: {missing_cols}. "
+                f"Excess columns: {excess_cols}",
+            )
 
         # We need to cast the data into the given schema. The reason for that is that pyarrow's
         # internal schema might have nullable columns (if it's inferred from the data source)
         # whereas the table schema might require these columns to be non-nullable. Casting ensures
         # the data matches the table schema.
         # We also need to ensure that the column name order is matching
-        data = data.select(table_schema.names).cast(table_schema)
+        try:
+            logger.debug("Casting data schema to %s", table_schema)
+            arrow_table = arrow_table.select(table_schema.names).cast(table_schema)
+        except Exception as e:
+            raise WriteToS3TablesError("Failed to cast data schema") from e
 
         logger.info("Writing table %s to S3 tables catalog", table_handle.name())
 
-        table_handle.overwrite(df=data)
+        table_handle.overwrite(df=arrow_table)
 
-    return data
+    return arrow_table

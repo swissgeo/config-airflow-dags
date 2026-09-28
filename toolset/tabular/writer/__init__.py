@@ -9,8 +9,9 @@ Base Definition:
       Id or name of the written resource
 """
 
-from .write_to_s3tables import write_to_s3tables
+from .write_to_s3tables import WriteToS3TablesError, write_to_s3tables
 
 __all__ = [
+    "WriteToS3TablesError",
     "write_to_s3tables",
 ]
