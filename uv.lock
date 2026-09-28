@@ -578,6 +578,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "boto3" },
+    { name = "pendulum" },
     { name = "psycopg" },
     { name = "pyarrow" },
     { name = "pyiceberg" },
@@ -600,6 +601,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "boto3", specifier = ">=1.43.99" },
+    { name = "pendulum", specifier = ">=3.2.0" },
     { name = "psycopg", specifier = ">=3.3.6" },
     { name = "pyarrow", specifier = ">=25.0.1" },
     { name = "pyiceberg", specifier = ">=0.12.0" },
