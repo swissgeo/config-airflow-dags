@@ -9,7 +9,9 @@ Base Definition:
 """
 
 from .join_tables import join_tables
+from .lowercase_column_names import lowercase_column_names
 
 __all__ = [
     "join_tables",
+    "lowercase_column_names",
 ]
