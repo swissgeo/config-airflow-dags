@@ -12,6 +12,10 @@ Configuration class for S3 table settings.
 """
 
 
+class WriteToS3TablesError(Exception):
+    """Custom exception for write_to_s3tables errors."""
+
+
 def write_to_s3tables(
     data: pa.Table,
     bucket: Bucket,
@@ -39,14 +43,20 @@ def write_to_s3tables(
 
         table_schema = table_handle.schema().as_arrow()
 
-        logger.info("Casting data schema to %s", table_schema)
+        if len(table_schema.names) != len(data.schema.names):
+            raise WriteToS3TablesError("Mismatch in column count")
 
         # We need to cast the data into the given schema. The reason for that is that pyarrow's
         # internal schema might have nullable columns (if it's inferred from the data source)
         # whereas the table schema might require these columns to be non-nullable. Casting ensures
         # the data matches the table schema.
         # We also need to ensure that the column name order is matching
-        data = data.select(table_schema.names).cast(table_schema)
+        try:
+            logger.debug("Casting data schema to %s", table_schema)
+            data = data.select(table_schema.names).cast(table_schema)
+        except Exception as e:
+            logger.exception("Failed to cast data schema")
+            raise WriteToS3TablesError("Failed to cast data schema") from e
 
         logger.info("Writing table %s to S3 tables catalog", table_handle.name())
 

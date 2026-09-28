@@ -6,7 +6,7 @@ from pyiceberg.exceptions import NoSuchTableError
 from pyiceberg.schema import Schema
 from pyiceberg.types import DateType, IntegerType, NestedField, StringType
 
-from tabular.writer import write_to_s3tables
+from tabular.writer import WriteToS3TablesError, write_to_s3tables
 
 
 @pytest.fixture
@@ -161,7 +161,7 @@ def test_writing_to_s3tables_with_differing_column_order(s3_table):
 )
 def test_write_invalid_schema(s3_table, data):
     """Test various scenarios where the schema is invalid"""
-    with pytest.raises(ValueError):  # noqa: PT011
+    with pytest.raises(WriteToS3TablesError):
         write_to_s3tables(
             data=data,
             bucket="raw",
