@@ -8,4 +8,8 @@ Base Definition:
 - Output: pyArrow Table
 """
 
-__all__ = []
+from .join_tables import join_tables
+
+__all__ = [
+    "join_tables",
+]
