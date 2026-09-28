@@ -3,7 +3,9 @@ import uuid
 from collections.abc import Generator
 from pathlib import Path
 
+import psycopg
 import pytest
+from psycopg import sql
 from pyiceberg.catalog import Catalog
 from pyiceberg.catalog import load_catalog as pyiceberg_load_catalog
 
@@ -55,3 +57,43 @@ def iceberg_catalog() -> Generator[tuple[Catalog, str]]:
     for table_id in catalog.list_tables(namespace):
         catalog.drop_table(table_id)
     catalog.drop_namespace(namespace)
+
+
+@pytest.fixture
+def postgres_connection() -> Generator[psycopg.Connection]:
+    with psycopg.connect(
+        host=os.environ["FEATURES_DB_ENDPOINT"],
+        port=os.environ["FEATURES_DB_PORT"],
+        dbname=os.environ["FEATURES_DB_NAME"],
+        user=os.environ["FEATURES_DB_USER"],
+        password=os.environ["FEATURES_DB_PASSWORD"],
+    ) as conn:
+        yield conn
+
+
+@pytest.fixture
+def postgres_table(
+    postgres_connection: psycopg.Connection,
+) -> Generator[tuple[psycopg.Connection, str]]:
+    """Create a temporary table and yield (connection, qualified_table_name).
+
+    The table has a fixed schema: id INTEGER, label TEXT.
+    It is dropped after the test regardless of outcome.
+    """
+
+    # using unique names for concurrent testing
+    table_name = f"test_{uuid.uuid4().hex[:8]}"
+
+    with postgres_connection.cursor() as cur:
+        query = sql.SQL("CREATE TABLE {} (id INTEGER, label TEXT)").format(
+            sql.Identifier(table_name)
+        )
+        cur.execute(query)
+        postgres_connection.commit()
+
+    yield postgres_connection, table_name
+
+    with postgres_connection.cursor() as cur:
+        query = sql.SQL("DROP TABLE IF EXISTS {}").format(sql.Identifier(table_name))
+        cur.execute(query)
+        postgres_connection.commit()
