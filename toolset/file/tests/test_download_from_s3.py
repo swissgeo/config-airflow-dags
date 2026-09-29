@@ -4,8 +4,7 @@ from pathlib import Path
 
 import boto3
 import pytest
-
-from file.download_from_s3 import download_from_s3
+from toolset.file.download_from_s3 import download_from_s3
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 _fixture_files = sorted(FIXTURES_DIR.iterdir()) if FIXTURES_DIR.exists() else []

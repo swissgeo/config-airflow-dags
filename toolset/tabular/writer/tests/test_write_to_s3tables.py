@@ -5,8 +5,7 @@ import pytest
 from pyiceberg.exceptions import NoSuchTableError
 from pyiceberg.schema import Schema
 from pyiceberg.types import DateType, IntegerType, NestedField, StringType
-
-from tabular.writer import WriteToS3TablesError, write_to_s3tables
+from toolset.tabular.writer import WriteToS3TablesError, write_to_s3tables
 
 
 @pytest.fixture

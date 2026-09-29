@@ -5,8 +5,7 @@ import pytest
 from pyiceberg.exceptions import NoSuchTableError
 from pyiceberg.schema import Schema
 from pyiceberg.types import DateType, IntegerType, NestedField, StringType
-
-from tabular.reader import read_from_s3tables
+from toolset.tabular.reader import read_from_s3tables
 
 
 @pytest.fixture
