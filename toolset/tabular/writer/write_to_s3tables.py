@@ -3,7 +3,7 @@ import os
 
 import pyarrow as pa
 
-from tabular._shared.s3tables import Bucket, get_table_bucket_arn, iceberg_catalog
+from .._shared.s3tables import Bucket, get_table_bucket_arn, iceberg_catalog
 
 logger = logging.getLogger("pipeline_toolset")
 

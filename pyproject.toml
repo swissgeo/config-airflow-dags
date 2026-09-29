@@ -89,12 +89,12 @@ section-order = [
 ]
 
 [tool.ty.environment]
-root = ["toolset"]
+root = ["."]
 
 #===============================================================================
 # Pytest configuration
 [tool.pytest]
-pythonpath = ["toolset"]
+pythonpath = ["."]
 python_files = ["test_*.py"]
 
 
