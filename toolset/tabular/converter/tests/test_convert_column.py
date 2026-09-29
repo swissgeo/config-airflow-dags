@@ -3,8 +3,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pytest
 from pendulum import DateTime
-
-from tabular.converter import convert_column
+from toolset.tabular.converter import convert_column
 
 
 def test_convert_column_inexisting_function():
