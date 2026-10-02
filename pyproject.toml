@@ -1,0 +1,119 @@
+[project]
+name = "config-airflow-dags"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "boto3>=1.43.99",
+    "psycopg>=3.3.6",
+    "pyarrow>=25.0.1",
+    "pyiceberg>=0.12.0",
+    "pyyaml>=6.0.3",
+]
+
+[tool.ruff]
+src = ["toolset"]
+
+# Same as Black.
+line-length = 100
+indent-width = 4
+
+# Assume Python 3.14
+target-version = "py314"
+
+#------------------------------------------------------------------------------
+# Linting configuration
+[tool.ruff.lint]
+exclude = []
+select = ["ALL"]
+ignore = [
+    "ANN401", # Ignore Any typehint
+    "ANN002", # Ignore typehint for *args
+    "ANN003", # Ignore typehint for **kwargs
+    "D",      # Ignore pydocstyle
+    "EM",     # Ignore flake8-errmsg
+    "FBT001", # Ignore boolean-type-hint-positional-argument
+    "FBT002", # Ignore boolean-default-value-positional-argument
+    "PTH123", # Ignore builtin-open
+    "TD",     # Ignore flake8-todos
+    "FIX",    # Ignore fixme comments
+    "ERA001", # TODO remove this for production, ignore commented code
+    "COM812", # flak8-commas missing-trailing-comma is ignored to avoid conflict with formatter which enforces trailing commas
+    "TRY003", # Ignore long messages in exceptions
+    "CPY001", # Ignore missing copyright notice in python files
+
+    # Pydantic schemas uses type annotations at runtime to generate the openapi
+    # and do the validation. Putting the type annotation in a TYPE_CHECKING
+    # block creates weird hard to debug code.
+    # Same for fastAPI dependencies which also use type annotations at runtime.
+    "TC003", # Ignore type annotation not in TYPE_CHECKING block
+    "TC002", # Ignore type annotation not in TYPE_CHECKING block for third party import
+    "TC001", # Ignore type annotation not in TYPE_CHECKING block for first party import
+]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+unfixable = []
+
+fixable = ["ALL"]
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+#------------------------------------------------------------------------------
+# ruff ignore per files
+[tool.ruff.lint.per-file-ignores]
+
+"**/tests/test_*" = [
+    "S101",    # Ignore usage of assert statements in tests
+    "S106",    # Ignore hard coded passwords in tests
+    "ANN201",  # Ignore missing return type hints in tests
+    "INP001",  # Ignore implicit namespace packages in tests
+    "ANN001",  # Ignore missing type hints in tests
+    "ARG001",  # Ignore unused function arguments in tests
+    "ARG005",  # Ignore unused lambda argument in tests
+    "PLR2004", # Ignore magic number in tests
+    "PLR0913", # Ignore too many arguments in function in tests
+]
+
+#------------------------------------------------------------------------------
+# Isort configuration
+[tool.ruff.lint.isort]
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "django-ninja",
+    "test",
+    "first-party",
+    "local-folder",
+]
+
+[tool.ty.environment]
+root = ["toolset"]
+
+#===============================================================================
+# Pytest configuration
+[tool.pytest]
+pythonpath = ["toolset"]
+python_files = ["test_*.py"]
+
+
+#==============================================================================
+# Coverage configuration
+[tool.coverage.run]
+omit = ["**/tests/*"]
+
+[tool.coverage.report]
+exclude_lines = ["if TYPE_CHECKING:", "pragma: no cover"]
+
+[dependency-groups]
+dev = [
+    "apache-airflow>=3.3.2",
+    "ipdb>=0.13.13",
+    "ipython>=9.17.1",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "pytest-xdist>=3.8.0",
+    "ruff>=0.16.8",
+    "ty>=0.0.83",
+]
