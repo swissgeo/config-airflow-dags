@@ -1,4 +1,5 @@
-FROM apache/airflow:3.2.2 AS dependencies
+# remember to update the pinned version in pyproject.toml
+FROM apache/airflow:3.3.2 AS dependencies
 
 COPY --chown=airflow:root pyproject.toml uv.lock /opt/airflow/dag-project/
 
