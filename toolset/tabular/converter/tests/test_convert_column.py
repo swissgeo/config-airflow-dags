@@ -1,4 +1,4 @@
-# ruff: noqa: PT011
+# ruff: noqa: PT011,PGH003
 import pyarrow as pa
 import pyarrow.compute as pc
 import pytest
@@ -7,38 +7,20 @@ from pendulum import DateTime
 from tabular.converter import convert_column
 
 
-def test_convert_column_wrong_type_data():
-    with pytest.raises(TypeError) as excinfo:
-        convert_column("not a table", "a", lambda x: x)
-
-    assert "pyarrow.Table" in str(excinfo.value)
-
-
-def test_convert_column_wrong_type_column_type():
-    data = pa.table({"a": [1, 2, 3]})
-
-    with pytest.raises(AttributeError):
-        convert_column(data, "a", str)
-
-
-def test_convert_column_missing_column():
+def test_convert_column_inexisting_function():
     data = pa.table({"a": [1, 2, 3]})
 
     with pytest.raises(ValueError):
-        convert_column(data, "z", lambda x: x)
+        convert_column(data, "a", "str")
 
 
 def test_convert_column_date_conversion():
     data = pa.table({"date": ["202607232100", "202202082200", "198310020830"]})
 
-    # we need to ignore the type checker here because pyarrow is generating these
-    # functions at runtime or something
-    func = pc.strptime  # ty: ignore[unresolved-attribute]
-
     result = convert_column(
         data,
         "date",
-        func,
+        "strptime",
         converter_args={"format": "%Y%m%d%H%M", "unit": "s"},
     )
 
@@ -47,3 +29,28 @@ def test_convert_column_date_conversion():
         DateTime(2022, 2, 8, 22, 0),
         DateTime(1983, 10, 2, 8, 30),
     ]
+
+
+def test_convert_column_negate():
+    data = pa.table({"a": [1, 2, 3]})
+    result = convert_column(data, "a", "negate")
+    assert result.column("a").to_pylist() == [-1, -2, -3]
+
+
+def test_convert_column_negate_native_func():
+    data = pa.table({"a": [1, 2, 3]})
+    with pytest.raises(TypeError):
+        convert_column(data, "a", pc.negate)  # type: ignore
+
+
+def test_convert_column_not_pyarrow():
+    data = {"a": [1, 2, 3]}
+
+    with pytest.raises(TypeError):
+        convert_column(data, "a", "negate")
+
+
+def test_convert_column_inexisting_column():
+    data = pa.table({"a": [1, 2, 3]})
+    with pytest.raises(ValueError):
+        convert_column(data, "b", "negate")
