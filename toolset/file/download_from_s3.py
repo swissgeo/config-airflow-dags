@@ -34,14 +34,14 @@ def download_from_s3(file_key: str, bucket_name: str) -> Generator[str]:
     )
 
     try:
-        response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
-    except s3_client.exceptions.NoSuchKey as e:
+        s3_client.head_object(Bucket=bucket_name, Key=file_key)
+    except s3_client.exceptions.ClientError as e:
         logger.exception("File %s not found in bucket %s", file_key, bucket_name)
 
         raise FileNotFoundError(f"File {file_key} not found in bucket {bucket_name}") from e
 
     with tempfile.NamedTemporaryFile(suffix=Path(file_key).suffix) as tmp_file:
-        tmp_file.write(response["Body"].read())
+        s3_client.download_file(Bucket=bucket_name, Key=file_key, Filename=tmp_file.name)
         tmp_file.flush()
 
         yield tmp_file.name
