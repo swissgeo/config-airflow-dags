@@ -45,12 +45,11 @@ def test_download_file_content(s3_bucket):
     client, bucket_name = s3_bucket
     client.put_object(Bucket=bucket_name, Key="data/test.txt", Body=content)
 
-    result = download_from_s3("data/test.txt", bucket_name)
-
-    try:
+    with download_from_s3("data/test.txt", bucket_name) as result:
         assert Path(result).read_bytes() == content
-    finally:
-        Path(result).unlink(missing_ok=True)
+
+    # file is removed after closing the context manager
+    assert not Path(result).exists()
 
 
 def test_download_preserves_extension(s3_bucket):
@@ -58,16 +57,13 @@ def test_download_preserves_extension(s3_bucket):
     client, bucket_name = s3_bucket
     client.put_object(Bucket=bucket_name, Key="archive.parquet", Body=content)
 
-    result = download_from_s3("archive.parquet", bucket_name)
-
-    try:
+    with download_from_s3("archive.parquet", bucket_name) as result:
         assert Path(result).read_bytes() == content
         assert result.endswith(".parquet")
-    finally:
-        Path(result).unlink(missing_ok=True)
 
 
 def test_download_missing_key_raises(s3_bucket):
     _, bucket_name = s3_bucket
-    with pytest.raises(FileNotFoundError, match=r"missing.txt"):
-        download_from_s3("missing.txt", bucket_name)
+    with pytest.raises(FileNotFoundError, match=r"missing.txt"):  # noqa: SIM117
+        with download_from_s3("missing.txt", bucket_name):
+            pass
