@@ -111,7 +111,7 @@ env_files = [".env.default"]
 #==============================================================================
 # Coverage configuration
 [tool.coverage.run]
-omit = ["**/tests/*"]
+omit = ["**/tests/*", "**/conftest.py"]
 
 [tool.coverage.report]
 exclude_lines = ["if TYPE_CHECKING:", "pragma: no cover"]
