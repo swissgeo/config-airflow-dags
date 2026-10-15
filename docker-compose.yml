@@ -40,3 +40,12 @@ services:
     depends_on:
       moto-init:
         condition: service_completed_successfully
+
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
