@@ -18,3 +18,7 @@ Tools can be parametrizable, for instance a converter tool might need to know th
 ## `node_tree/`
 
 This folder contains a tool that creates a sequence of tools by parsing a yaml file. This makes it possible to define a pipeline with a configuration instead of having to hard code it into a DAG. See [pipeline_configuration](../)
+
+## `tabular/`
+
+These tools concern themselves with reading, writing and working with tabular data (e.g. pyarrow tables).
