@@ -1,9 +1,8 @@
 import logging
-import os
 
 import pyarrow as pa
 
-from tabular._shared.s3tables import Bucket, get_table_bucket_arn, iceberg_catalog
+from toolset.tabular._shared.s3tables import Bucket, get_table_bucket_arn, iceberg_catalog
 
 logger = logging.getLogger("pipeline_toolset")
 
@@ -31,9 +30,8 @@ def write_to_s3tables(
     Returns:
         The data itself again in pyarrow format
     """
-    region = os.environ.get("AWS_REGION", "eu-central-1")
 
-    with iceberg_catalog(region, get_table_bucket_arn(bucket)) as catalog:
+    with iceberg_catalog(get_table_bucket_arn(bucket)) as catalog:
         table_identifier = f"{namespace}.{table_name}"
         table_handle = catalog.load_table(table_identifier)
 

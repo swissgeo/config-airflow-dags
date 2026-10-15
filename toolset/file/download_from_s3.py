@@ -2,7 +2,7 @@ import logging
 import os
 import tempfile
 from collections.abc import Generator
-from contextlib import contextmanager
+from contextlib import AbstractContextManager, contextmanager
 from pathlib import Path
 
 import boto3
@@ -10,11 +10,23 @@ import boto3
 logger = logging.getLogger("pipeline_toolset")
 
 
+def download_from_landingzone(file_key: str) -> AbstractContextManager:
+    """Download a file from the s3 landing zone bucket"""
+
+    return _download_from_s3(
+        file_key,
+        os.environ["LANDING_ZONE_BUCKET"],
+    )
+
+
 @contextmanager
-def download_from_s3(file_key: str, bucket_name: str) -> Generator[str]:
+def _download_from_s3(file_key: str, bucket_name: str) -> Generator[str]:
     """
     Read a file from an S3 bucket and return the path to a temporary file
-    where it will be stored
+    where it will be stored.
+
+    Usually it should not be necessary to call this function directly but the
+    wrapper above instead.
 
     Args:
         file_key (str): The S3 object key (path) of the file to download.

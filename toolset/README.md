@@ -15,6 +15,10 @@ Following is an abstract example of a very simple chain of tools:
 
 Tools can be parametrizable, for instance a converter tool might need to know the column it needs to operate on.
 
+## `file/`
+
+Tools cocerning the handling of files. For now this means downloading files from the landing_zone.
+
 ## `tabular/`
 
 These tools concern themselves with reading, writing and working with tabular data (e.g. pyarrow tables).
