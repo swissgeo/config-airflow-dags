@@ -1,6 +1,7 @@
 import os
 import uuid
-from collections.abc import Generator
+from collections.abc import Callable, Generator
+from typing import Literal
 
 import psycopg
 import pytest
@@ -8,35 +9,56 @@ from psycopg import sql
 from pyiceberg.catalog import Catalog
 from pyiceberg.catalog import load_catalog as pyiceberg_load_catalog
 
+Bucket = Literal["raw", "sanitize", "load"]
+
+_BUCKET_ENV_VARS: dict[Bucket, str] = {
+    "raw": "RAW_TABLE_BUCKET_ARN",
+    "sanitize": "SANITIZE_TABLE_BUCKET_ARN",
+    "load": "LOAD_TABLE_BUCKET_ARN",
+}
+
 
 @pytest.fixture
-def iceberg_catalog() -> Generator[tuple[Catalog, str]]:
-    """Yield (catalog, namespace) backed by the local Iceberg REST container.
+def iceberg_catalog() -> Generator[Callable[[Bucket], tuple[Catalog, str]]]:
+    """Yield function that returns (catalog, namespace) backed by the
+    local Iceberg REST container. The function takes the desired bucket raw | sanitize | load
 
     A fresh namespace is created per test and torn down afterwards.
-    Requires ICEBERG_REST_URI and ICEBERG_WAREHOUSE to be set (via .env.default).
     """
-    catalog = pyiceberg_load_catalog(
-        "local",
-        **{
-            "type": "rest",
-            "uri": os.environ["ICEBERG_REST_URI"],
-            "warehouse": os.environ["ICEBERG_WAREHOUSE"],
-            "s3.endpoint": os.environ["AWS_ENDPOINT_URL"],
-            "s3.path-style-access": "true",
-            "s3.access-key-id": os.environ["AWS_ACCESS_KEY_ID"],
-            "s3.secret-access-key": os.environ["AWS_SECRET_ACCESS_KEY"],
-            "s3.region": os.environ.get("AWS_REGION", "eu-central-1"),
-        },
-    )
-    namespace = f"test_{uuid.uuid4().hex[:8]}"
-    catalog.create_namespace(namespace)
+    catalog: Catalog | None = None
+    namespace: str | None = None
 
-    yield catalog, namespace
+    def _catalog(bucket: Bucket) -> tuple[Catalog, str]:
+        "Function return by the fixture to create a catalog taking a parameter"
+        nonlocal catalog
+        nonlocal namespace
 
-    for table_id in catalog.list_tables(namespace):
-        catalog.drop_table(table_id)
-    catalog.drop_namespace(namespace)
+        bucket_env_var = _BUCKET_ENV_VARS[bucket]
+
+        catalog = pyiceberg_load_catalog(
+            "local",
+            **{
+                "type": "rest",
+                "uri": os.environ["ICEBERG_URI"],
+                "warehouse": os.environ[bucket_env_var],
+                "s3.endpoint": os.environ["AWS_ENDPOINT_URL"],
+                "s3.path-style-access": "true",
+                "s3.access-key-id": os.environ["AWS_ACCESS_KEY_ID"],
+                "s3.secret-access-key": os.environ["AWS_SECRET_ACCESS_KEY"],
+                "s3.region": os.environ.get("AWS_REGION", "eu-central-1"),
+            },
+        )
+        namespace = f"test_{uuid.uuid4().hex[:8]}"
+        catalog.create_namespace(namespace)
+
+        return catalog, namespace
+
+    yield _catalog
+
+    if catalog and namespace:
+        for table_id in catalog.list_tables(namespace):
+            catalog.drop_table(table_id)
+        catalog.drop_namespace(namespace)
 
 
 @pytest.fixture
