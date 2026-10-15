@@ -1,5 +1,4 @@
 import logging
-import os
 
 import pyarrow as pa
 
@@ -21,13 +20,11 @@ def read_from_s3tables(bucket: Bucket, namespace: str, table_name: str) -> pa.Ta
     """
     table_identifier = f"{namespace}.{table_name}"
 
-    region = os.environ.get("AWS_REGION", "eu-central-1")
-
     table_bucket_arn = get_table_bucket_arn(bucket)
 
     logger.info("Reading table %s from s3 table bucket %s", table_identifier, table_bucket_arn)
 
-    with iceberg_catalog(region, table_bucket_arn) as catalog:
+    with iceberg_catalog(table_bucket_arn) as catalog:
         table = catalog.load_table(table_identifier)
 
         return table.scan().to_arrow()
