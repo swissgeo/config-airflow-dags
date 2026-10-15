@@ -18,8 +18,8 @@ def raw_catalog() -> Generator[tuple[Catalog, str]]:
         "local",
         **{
             "type": "rest",
-            "uri": os.environ["ICEBERG_REST_URI"],
-            "warehouse": os.environ["ICEBERG_WAREHOUSE"],
+            "uri": os.environ["ICEBERG_URI"],
+            "warehouse": os.environ["RAW_TABLE_BUCKET_ARN"],
             "s3.endpoint": os.environ["AWS_ENDPOINT_URL"],
             "s3.path-style-access": "true",
             "s3.access-key-id": os.environ["AWS_ACCESS_KEY_ID"],
@@ -40,7 +40,7 @@ def raw_catalog() -> Generator[tuple[Catalog, str]]:
 
 @pytest.fixture
 def landing_zone() -> Generator[tuple[S3Client, str]]:
-    bucket_name = "landing-zone"
+    bucket_name = os.environ["LANDING_ZONE_BUCKET"]
     region = cast("BucketLocationConstraintType", os.environ.get("AWS_REGION", "eu-central-1"))
 
     s3 = boto3.client(

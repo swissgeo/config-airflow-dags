@@ -7,7 +7,7 @@ import logging
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
 from airflow.sdk.definitions.param import Param, ParamsDict
-from toolset.file.download_from_s3 import download_from_s3
+from toolset.file.download_from_s3 import download_from_landingzone
 from toolset.tabular.converter import lowercase_column_names
 from toolset.tabular.parser import parse_csv
 from toolset.tabular.writer import write_to_s3tables
@@ -32,7 +32,7 @@ dag = DAG(
 
 
 def first_step(file_key: str) -> None:
-    with download_from_s3(file_key, "landing-zone") as file_path:
+    with download_from_landingzone(file_key) as file_path:
         table = parse_csv(file_path, "utf-8", ",")
 
     table_lowercased = lowercase_column_names(table)
