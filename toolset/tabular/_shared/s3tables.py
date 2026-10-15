@@ -37,7 +37,7 @@ def _load_local_iceberg_catalog(table_bucket_arn: str) -> Catalog:
     return pyiceberg_load_catalog("s3tables", **iceberg_props)
 
 
-def _load_s3tables_catalog(table_bucket_arn: str) -> Catalog:
+def _load_s3tables_catalog(table_bucket_arn: str) -> Catalog:  # pragma: no cover
     """Connect to AWS s3 tables and return a catalog"""
 
     region = os.environ.get("AWS_REGION", "eu-central-1")
@@ -69,7 +69,7 @@ def iceberg_catalog(table_bucket_arn: str) -> Generator[Catalog]:
         if os.getenv("ICEBERG_BACKEND", "s3tables") == "local":
             catalog = _load_local_iceberg_catalog(table_bucket_arn)
         else:
-            catalog = _load_s3tables_catalog(table_bucket_arn)
+            catalog = _load_s3tables_catalog(table_bucket_arn)  # pragma: no cover
 
         yield catalog
 
