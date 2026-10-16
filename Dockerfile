@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     -r requirements.txt
 
 # install the toolbase as a python package
-COPY toolset/ toolset/
+COPY swissgeo_toolset/ swissgeo_toolset/
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --python /usr/local/bin/python --target /install \
     --no-deps .

@@ -3,7 +3,7 @@ import pyarrow as pa
 import pytest
 from psycopg import sql
 
-from toolset.tabular.writer import write_to_postgres
+from swissgeo_toolset.tabular.writer import write_to_postgres
 
 
 def test_write_to_postgres_basic(postgres_table):

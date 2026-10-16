@@ -1,7 +1,7 @@
 import pyarrow as pa
 import pytest
 
-from toolset.tabular.converter import drop_columns
+from swissgeo_toolset.tabular.converter import drop_columns
 
 
 def test_drop_single_column():

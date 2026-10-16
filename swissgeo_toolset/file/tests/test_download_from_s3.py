@@ -5,7 +5,7 @@ from typing import cast
 import pytest
 from types_boto3_s3.literals import BucketLocationConstraintType
 
-from toolset.file.download_from_s3 import _download_from_s3, download_from_landingzone
+from swissgeo_toolset.file.download_from_s3 import _download_from_s3, download_from_landingzone
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 _fixture_files = sorted(FIXTURES_DIR.iterdir()) if FIXTURES_DIR.exists() else []
@@ -15,7 +15,7 @@ REGION = cast("BucketLocationConstraintType", os.environ["AWS_REGION"])
 
 
 def test_download_from_landinzone(mocker):
-    mock_download = mocker.patch("toolset.file.download_from_s3._download_from_s3")
+    mock_download = mocker.patch("swissgeo_toolset.file.download_from_s3._download_from_s3")
 
     download_from_landingzone("file.key")
 

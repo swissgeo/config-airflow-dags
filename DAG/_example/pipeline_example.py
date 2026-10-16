@@ -8,10 +8,10 @@ from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
 from airflow.sdk.definitions.param import Param, ParamsDict
 
-from toolset.file.download_from_s3 import download_from_landingzone
-from toolset.tabular.converter import lowercase_column_names
-from toolset.tabular.parser import parse_csv
-from toolset.tabular.writer import write_to_s3tables
+from swissgeo_toolset.file.download_from_s3 import download_from_landingzone
+from swissgeo_toolset.tabular.converter import lowercase_column_names
+from swissgeo_toolset.tabular.parser import parse_csv
+from swissgeo_toolset.tabular.writer import write_to_s3tables
 
 logger = logging.getLogger(__name__)
 
