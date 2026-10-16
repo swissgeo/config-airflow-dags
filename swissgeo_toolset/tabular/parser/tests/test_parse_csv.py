@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 import pyarrow as pa
 import pytest
-from toolset.tabular.parser.parse_csv import parse_csv
+from swissgeo_toolset.tabular.parser.parse_csv import parse_csv
 
 
 @pytest.fixture

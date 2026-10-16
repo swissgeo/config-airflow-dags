@@ -2,7 +2,7 @@
 
 import pyarrow as pa
 import pytest
-from toolset.tabular.converter import add_column
+from swissgeo_toolset.tabular.converter import add_column
 
 
 def test_add_column_adds_column_correctly():

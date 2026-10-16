@@ -4,7 +4,7 @@ from pathlib import Path
 
 import boto3
 import pytest
-from toolset.file.download_from_s3 import _download_from_s3, download_from_landingzone
+from swissgeo_toolset.file.download_from_s3 import _download_from_s3, download_from_landingzone
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 _fixture_files = sorted(FIXTURES_DIR.iterdir()) if FIXTURES_DIR.exists() else []
@@ -40,7 +40,7 @@ def landing_zone():
 
 
 def test_download_from_landinzone(mocker):
-    mock_download = mocker.patch("toolset.file.download_from_s3._download_from_s3")
+    mock_download = mocker.patch("swissgeo_toolset.file.download_from_s3._download_from_s3")
 
     download_from_landingzone("file.key")
 

@@ -1,6 +1,6 @@
 import pyarrow as pa
 import pytest
-from toolset.tabular.converter import join_tables
+from swissgeo_toolset.tabular.converter import join_tables
 
 
 def test_join_tables():

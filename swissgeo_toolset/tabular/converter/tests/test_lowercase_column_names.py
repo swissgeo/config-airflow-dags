@@ -1,6 +1,6 @@
 import pyarrow as pa
 import pytest
-from toolset.tabular.converter.lowercase_column_names import lowercase_column_names
+from swissgeo_toolset.tabular.converter.lowercase_column_names import lowercase_column_names
 
 
 def test_already_lowercase():
