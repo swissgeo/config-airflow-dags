@@ -1,0 +1,15 @@
+# Python cache files
+**/__pycache__/
+**/*.py[cod]
+**/*.pyo
+**/*.pyd
+
+# Tests
+**/tests/
+**/test_*
+**/conftest.py
+
+# General files for safety
+.venv/
+.git/
+.env*
