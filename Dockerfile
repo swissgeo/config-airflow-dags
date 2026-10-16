@@ -1,30 +1,33 @@
+# -------- builder stage ----------
 # remember to update the pinned version in pyproject.toml
-FROM apache/airflow:3.3.2 AS dependencies
+FROM apache/airflow:3.3.2-python3.14 AS builder
 
-COPY --chown=airflow:root pyproject.toml uv.lock /opt/airflow/dag-project/
+USER root
+WORKDIR /src/
 
-WORKDIR /opt/airflow/dag-project
-RUN uv export \
-    --locked \
-    --no-dev \
-    --no-emit-project \
-    --no-hashes \
-    --format requirements-txt \
-    --output-file /tmp/dag-requirements.txt \
-    && uv pip install \
-    --no-cache \
-    --target /opt/airflow/dag-source/python \
-    --requirements /tmp/dag-requirements.txt \
-    && rm /tmp/dag-requirements.txt
+COPY pyproject.toml uv.lock ./
 
-COPY --chown=airflow:root DAG/ /opt/airflow/dag-source/
-# TODO include code in the toolset so that it will be used by airflow when running a DAG
+# install dependencies. Install them via export and pip install so that
+# it won't be installed into a virtualenv, which can't be picked up
+# by airflow
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv export --frozen --no-dev --no-hashes --no-emit-project \
+    --no-emit-package apache-airflow -o requirements.txt \
+    && uv pip install --python /usr/local/bin/python --target /install \
+    -r requirements.txt
 
+# install the toolbase as a python package
+COPY toolset/ toolset/
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --python /usr/local/bin/python --target /install \
+    --no-deps .
+
+# ----- final stage ------------------
 FROM busybox:1.37.0
 
-COPY --from=dependencies --chown=50000:0 /opt/airflow/dag-source/ /opt/airflow/dag-source/
-COPY --chown=50000:0 --chmod=0555 deploy-dags.sh /usr/local/bin/deploy-dags
+# copy the python deps
+COPY --chown=airflow:root --from=builder /install \
+    /opt/airflow/dags-staging/python/
 
-USER 50000:0
-
-ENTRYPOINT ["/usr/local/bin/deploy-dags"]
+# copy the actual DAGs
+COPY --chown=airflow:root DAG/  /opt/airflow/dags-staging/
