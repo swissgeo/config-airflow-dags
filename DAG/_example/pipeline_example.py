@@ -18,6 +18,8 @@ logger = logging.getLogger(__name__)
 # Define default arguments for the DAG
 default_args = {"owner": "airflow", "depends_on_past": False, "retries": 0}
 
+namespace = "example"
+
 dag = DAG(
     "pipeline_example",
     default_args=default_args,
@@ -38,7 +40,7 @@ def first_step(file_key: str) -> None:
 
     table_lowercased = lowercase_column_names(table)
 
-    write_to_s3tables(table_lowercased, "raw", "example", "data")
+    write_to_s3tables(table_lowercased, "raw", namespace, "data")
 
 
 # Define tasks

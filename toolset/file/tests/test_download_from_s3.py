@@ -1,9 +1,7 @@
 import os
-import uuid
 from pathlib import Path
 from typing import cast
 
-import boto3
 import pytest
 from types_boto3_s3.literals import BucketLocationConstraintType
 
@@ -14,31 +12,6 @@ _fixture_files = sorted(FIXTURES_DIR.iterdir()) if FIXTURES_DIR.exists() else []
 
 MOTO_ENDPOINT = os.environ["AWS_ENDPOINT_URL"]
 REGION = cast("BucketLocationConstraintType", os.environ["AWS_REGION"])
-
-
-@pytest.fixture
-def landing_zone():
-    bucket_name = os.environ["LANDING_ZONE_BUCKET"] + f"-{uuid.uuid4()}"
-
-    client = boto3.client(
-        "s3",
-        endpoint_url=MOTO_ENDPOINT,
-        region_name=REGION,
-        aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
-        aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
-    )
-    client.create_bucket(
-        # for concurrent testing, we need to use unique bucket names
-        Bucket=bucket_name,
-        CreateBucketConfiguration={"LocationConstraint": REGION},
-    )
-
-    yield client, bucket_name
-
-    objects = client.list_objects_v2(Bucket=bucket_name).get("Contents", [])
-    for obj in objects:
-        client.delete_object(Bucket=bucket_name, Key=obj["Key"])
-    client.delete_bucket(Bucket=bucket_name)
 
 
 def test_download_from_landinzone(mocker):

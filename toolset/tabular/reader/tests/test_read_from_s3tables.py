@@ -10,9 +10,9 @@ from toolset.tabular.reader import read_from_s3tables
 
 
 @pytest.fixture
-def s3_table(iceberg_catalog):
+def s3_table(raw_catalog):
     """Create an intermediary table on iceberg"""
-    catalog, namespace = iceberg_catalog("raw")
+    catalog, namespace = raw_catalog
     table_name = "test_table"
     identifier = f"{namespace}.{table_name}"
 
