@@ -65,6 +65,7 @@ def iceberg_catalog(table_bucket_arn: str) -> Generator[Catalog]:
     """
 
     catalog: Catalog | None = None
+
     try:
         if os.getenv("ICEBERG_BACKEND", "s3tables") == "local":
             catalog = _load_local_iceberg_catalog(table_bucket_arn)

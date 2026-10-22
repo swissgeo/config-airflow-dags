@@ -2,6 +2,7 @@ import psycopg
 import pyarrow as pa
 import pytest
 from psycopg import sql
+
 from toolset.tabular.writer import write_to_postgres
 
 

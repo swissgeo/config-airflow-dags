@@ -5,8 +5,9 @@ from typing import cast
 
 import boto3
 import pytest
-from toolset.file.download_from_s3 import _download_from_s3, download_from_landingzone
 from types_boto3_s3.literals import BucketLocationConstraintType
+
+from toolset.file.download_from_s3 import _download_from_s3, download_from_landingzone
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 _fixture_files = sorted(FIXTURES_DIR.iterdir()) if FIXTURES_DIR.exists() else []

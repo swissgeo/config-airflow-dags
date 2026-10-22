@@ -1,6 +1,7 @@
-from DAG._example.pipeline_example import first_step
 from pyiceberg.schema import Schema
 from pyiceberg.types import IntegerType, NestedField, StringType
+
+from DAG._example.pipeline_example import first_step
 
 
 def test_pipeline_example(raw_catalog, landing_zone):

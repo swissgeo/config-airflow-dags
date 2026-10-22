@@ -14,7 +14,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "apache-airflow>=3.3.2", # remember to keep in sync with Dockerfile
+    "apache-airflow>=3.3.2",     # remember to keep in sync with Dockerfile
     "ipdb>=0.13.13",
     "ipython>=9.17.1",
     "pytest>=9.1.1",
@@ -28,8 +28,6 @@ dev = [
 ]
 
 [tool.ruff]
-src = ["toolset"]
-
 # Same as Black.
 line-length = 100
 indent-width = 4
@@ -89,7 +87,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 ]
 
 "DAG/**/*.py" = [
-  "B018" # Ignore useless expressions, they're used for defining the DAG flow
+    "B018", # Ignore useless expressions, they're used for defining the DAG flow
 ]
 
 #------------------------------------------------------------------------------
@@ -103,8 +101,8 @@ section-order = [
     "local-folder",
 ]
 
-[tool.ty.environment]
-root = ["."]
+# [tool.ty.environment]
+# root = ["."]
 
 #===============================================================================
 # Pytest configuration

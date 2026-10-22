@@ -3,6 +3,7 @@ from collections.abc import Callable
 import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
+
 from toolset.tabular.parser.parse_parquet import parse_parquet
 
 

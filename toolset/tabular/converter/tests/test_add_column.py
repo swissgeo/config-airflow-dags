@@ -2,6 +2,7 @@
 
 import pyarrow as pa
 import pytest
+
 from toolset.tabular.converter import add_column
 
 
