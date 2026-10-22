@@ -6,13 +6,13 @@ from pyiceberg.exceptions import NoSuchTableError
 from pyiceberg.schema import Schema
 from pyiceberg.types import DateType, IntegerType, NestedField, StringType
 
-from tabular.writer import WriteToS3TablesError, write_to_s3tables
+from toolset.tabular.writer import WriteToS3TablesError, write_to_s3tables
 
 
 @pytest.fixture
-def s3_table(iceberg_catalog):
+def s3_table(raw_catalog):
     """Create an intermediary table on iceberg"""
-    catalog, namespace = iceberg_catalog
+    catalog, namespace = raw_catalog
     table_name = "test_table"
     identifier = f"{namespace}.{table_name}"
 

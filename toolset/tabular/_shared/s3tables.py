@@ -18,53 +18,67 @@ _BUCKET_ENV_VARS: dict[Bucket, str] = {
 }
 
 
-@contextmanager
-def iceberg_catalog(region: str, table_bucket_arn: str) -> Generator[Catalog]:
-    """Load an iceberg catalog
+def _load_local_iceberg_catalog(table_bucket_arn: str) -> Catalog:
+    """Connect to a iceberg instance and return a catalog"""
 
-    Connect to apache iceberg (s3 tables) and return a handle.
+    iceberg_props = {
+        "uri": os.environ["ICEBERG_URI"],
+        "type": "rest",
+        "warehouse": table_bucket_arn,
+        "s3.endpoint": os.environ["AWS_ENDPOINT_URL"],
+        "s3.path-style-access": "true",
+        "s3.access-key-id": os.environ["AWS_ACCESS_KEY_ID"],
+        "s3.secret-access-key": os.environ["AWS_SECRET_ACCESS_KEY"],
+        "s3.region": os.environ.get("AWS_REGION", "eu-central-1"),
+    }
+
+    logger.info("Loading local iceberg catalog for bucket %s", table_bucket_arn)
+
+    return pyiceberg_load_catalog("s3tables", **iceberg_props)
+
+
+def _load_s3tables_catalog(table_bucket_arn: str) -> Catalog:  # pragma: no cover
+    """Connect to AWS s3 tables and return a catalog"""
+
+    region = os.environ.get("AWS_REGION", "eu-central-1")
+
+    s3tables_props = {
+        "uri": f"https://s3tables.{region}.amazonaws.com/iceberg",
+        "type": "rest",
+        "warehouse": table_bucket_arn,
+        "rest.sigv4-enabled": "true",
+        "rest.signing-name": "s3tables",
+        "rest.signing-region": region,
+    }
+
+    logger.info("Loading s3tables catalog for region %s for bucket %s", region, table_bucket_arn)
+    return pyiceberg_load_catalog("s3tables", **s3tables_props)
+
+
+@contextmanager
+def iceberg_catalog(table_bucket_arn: str) -> Generator[Catalog]:
+    """Load an iceberg or pyiceberg catalog
+
+    Connect to apache iceberg and return a handle.
+    Depending on the env variable ICEBERG_BACKEND it either connects to
+    a s3tables bucket or to a iceberg instance
     """
 
-    logger.info("Loading catalog for region %s for bucket %s", region, table_bucket_arn)
-
-    # provide the possibility to connect either to
-    # * a local iceberg API for testing, or
-    # * s3tables in the cloud
-
-    uri = os.environ.get("ICEBERG_REST_URI", f"https://s3tables.{region}.amazonaws.com/iceberg")
-    warehouse = os.environ.get("ICEBERG_WAREHOUSE", table_bucket_arn)
-
-    props: dict[str, str] = {"type": "rest", "warehouse": warehouse, "uri": uri}
-
-    if "ICEBERG_REST_URI" in os.environ:
-        # connecting locally to iceberg
-        props.update(
-            {
-                "s3.endpoint": os.environ["AWS_ENDPOINT_URL"],
-                "s3.path-style-access": "true",
-                "s3.access-key-id": os.environ["AWS_ACCESS_KEY_ID"],
-                "s3.secret-access-key": os.environ["AWS_SECRET_ACCESS_KEY"],
-                "s3.region": os.environ.get("AWS_REGION", "eu-central-1"),
-            }
-        )
-    else:
-        # connecting in the cloud to s3tables
-        props.update(
-            {
-                "rest.sigv4-enabled": "true",
-                "rest.signing-name": "s3tables",
-                "rest.signing-region": region,
-            }
-        )
-
-    catalog = pyiceberg_load_catalog("s3tables", **props)
+    catalog: Catalog | None = None
 
     try:
+        if os.getenv("ICEBERG_BACKEND", "s3tables") == "local":
+            catalog = _load_local_iceberg_catalog(table_bucket_arn)
+        else:
+            catalog = _load_s3tables_catalog(table_bucket_arn)  # pragma: no cover
+
         yield catalog
 
     finally:
         logger.info("Closing iceberg catalog")
-        catalog.close()
+
+        if catalog:
+            catalog.close()
 
 
 def get_table_bucket_arn(bucket: Bucket) -> str:

@@ -14,20 +14,20 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "apache-airflow>=3.3.2", # remember to keep in sync with Dockerfile
+    "apache-airflow>=3.3.2",     # remember to keep in sync with Dockerfile
     "ipdb>=0.13.13",
     "ipython>=9.17.1",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "pytest-dotenv>=0.5.2",
+    "pytest-mock>=3.16.0",
     "pytest-xdist>=3.8.0",
     "ruff>=0.16.8",
     "ty>=0.0.83",
+    "types-boto3[s3]>=1.43.112",
 ]
 
 [tool.ruff]
-src = ["toolset"]
-
 # Same as Black.
 line-length = 100
 indent-width = 4
@@ -73,7 +73,8 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 # ruff ignore per files
 [tool.ruff.lint.per-file-ignores]
 
-"**/tests/test_*" = [
+# ignores for the tests in toolset and integrations_tests folder
+"**/*tests/**/test_*" = [
     "S101",    # Ignore usage of assert statements in tests
     "S106",    # Ignore hard coded passwords in tests
     "ANN201",  # Ignore missing return type hints in tests
@@ -83,6 +84,10 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
     "ARG005",  # Ignore unused lambda argument in tests
     "PLR2004", # Ignore magic number in tests
     "PLR0913", # Ignore too many arguments in function in tests
+]
+
+"DAG/**/*.py" = [
+    "B018", # Ignore useless expressions, they're used for defining the DAG flow
 ]
 
 #------------------------------------------------------------------------------
@@ -96,13 +101,13 @@ section-order = [
     "local-folder",
 ]
 
-[tool.ty.environment]
-root = ["toolset"]
+# [tool.ty.environment]
+# root = ["."]
 
 #===============================================================================
 # Pytest configuration
 [tool.pytest]
-pythonpath = ["toolset"]
+pythonpath = ["."]
 python_files = ["test_*.py"]
 env_files = [".env.default"]
 

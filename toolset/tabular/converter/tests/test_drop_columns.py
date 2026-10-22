@@ -1,7 +1,7 @@
 import pyarrow as pa
 import pytest
 
-from tabular.converter import drop_columns
+from toolset.tabular.converter import drop_columns
 
 
 def test_drop_single_column():

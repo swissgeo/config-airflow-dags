@@ -4,7 +4,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from tabular.parser.parse_parquet import parse_parquet
+from toolset.tabular.parser.parse_parquet import parse_parquet
 
 
 @pytest.fixture

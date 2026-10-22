@@ -1,7 +1,7 @@
 import pyarrow as pa
 import pytest
 
-from tabular.converter import join_tables
+from toolset.tabular.converter import join_tables
 
 
 def test_join_tables():

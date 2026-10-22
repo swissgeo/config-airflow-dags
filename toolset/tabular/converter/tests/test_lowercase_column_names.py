@@ -1,7 +1,7 @@
 import pyarrow as pa
 import pytest
 
-from tabular.converter.lowercase_column_names import lowercase_column_names
+from toolset.tabular.converter.lowercase_column_names import lowercase_column_names
 
 
 def test_already_lowercase():

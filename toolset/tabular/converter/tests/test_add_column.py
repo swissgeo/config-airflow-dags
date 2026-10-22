@@ -3,7 +3,7 @@
 import pyarrow as pa
 import pytest
 
-from tabular.converter import add_column
+from toolset.tabular.converter import add_column
 
 
 def test_add_column_adds_column_correctly():
