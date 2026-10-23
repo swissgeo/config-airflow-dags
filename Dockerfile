@@ -26,8 +26,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 FROM busybox:1.37.0
 
 # copy the python deps
-COPY --chown=airflow:root --from=builder /install \
+COPY --from=builder /install \
     /opt/airflow/dags-staging/python/
 
 # copy the actual DAGs
-COPY --chown=airflow:root DAG/  /opt/airflow/dags-staging/
+COPY DAG/  /opt/airflow/dags-staging/
