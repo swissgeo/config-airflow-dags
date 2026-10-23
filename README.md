@@ -2,10 +2,10 @@
 
 Configuration and code to process data on Airflow
 
-<!--| Branch | Status |
-|--------|-----------|
-| develop | ![Build Status](CODEBUILD_BADGE_URL) |
-| main | ![Build Status](CODEBUILD_BADGE_URL) |-->
+| Branch  | Status                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| develop | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoicFU1SDFEbTZPMnc3SVVWM0k0NTZXZzE2blpDMFZHNXQvZ2tWcmRoNjNrb2RWWmxIcmVWazQxUVdKa3RPUUpNUEhNVlF3QkJqOUlDZHBickhvTnRaUXR3PSIsIml2UGFyYW1ldGVyU3BlYyI6ImdCZllZL2o0TXJZVkJYbk0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=develop) [![codecov](https://codecov.io/gh/swissgeo/config-airflow-dags/branch/develop/graph/badge.svg)](https://codecov.io/github/swissgeo/config-airflow-dags/tree/develop) |
+| main    | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoicFU1SDFEbTZPMnc3SVVWM0k0NTZXZzE2blpDMFZHNXQvZ2tWcmRoNjNrb2RWWmxIcmVWazQxUVdKa3RPUUpNUEhNVlF3QkJqOUlDZHBickhvTnRaUXR3PSIsIml2UGFyYW1ldGVyU3BlYyI6ImdCZllZL2o0TXJZVkJYbk0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main) [![codecov](https://codecov.io/gh/swissgeo/config-airflow-dags/branch/main/graph/badge.svg)](https://app.codecov.io/gh/swissgeo/config-airflow-dags/tree/main)          |
 
 ## Intro
 
