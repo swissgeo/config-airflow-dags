@@ -6,7 +6,7 @@ from pyiceberg.exceptions import NoSuchTableError
 from pyiceberg.schema import Schema
 from pyiceberg.types import DateType, IntegerType, NestedField, StringType
 
-from toolset.tabular.reader import read_from_s3tables
+from swissgeo_toolset.tabular.reader import read_from_s3tables
 
 
 @pytest.fixture
@@ -73,4 +73,27 @@ def test_s3_reading_inexisting_table(s3_table_with_data):
             "raw",
             namespace=s3_table_with_data["namespace"],
             table_name="inexisting_table",
+        )
+
+
+def test_s3_reading_inexisting_bucket(s3_table_with_data):
+    with pytest.raises(ValueError):  # noqa: PT011
+        read_from_s3tables(
+            "row",  # ty: ignore[invalid-argument-type]
+            namespace=s3_table_with_data["namespace"],
+            table_name="inexisting_table",
+        )
+
+
+def test_s3_reading_unset_env(s3_table_with_data, monkeypatch):
+    table_name = s3_table_with_data["table_name"]
+    namespace = s3_table_with_data["namespace"]
+
+    monkeypatch.delenv("RAW_TABLE_BUCKET_ARN")
+
+    with pytest.raises(RuntimeError):
+        read_from_s3tables(
+            "raw",
+            namespace=namespace,
+            table_name=table_name,
         )

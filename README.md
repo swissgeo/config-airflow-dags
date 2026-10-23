@@ -17,7 +17,9 @@ This means, for now:
 - The DAG definition themselves
 - The model information that's used for creating the tables on s3tables as well as on the postgis database for [service-oa-features](https://github.com/swissgeo/service-oa-features)
 
-## Configuration
+## Setup
+
+### Configuration
 
 Following are the env variables that are required to be set:
 
@@ -39,3 +41,62 @@ Following are the env variables that are required to be set:
 | FEATURES_DB_USER          | string             | postgres db writer       | Username for the service-oa-features database                                                |
 | FEATURES_DB_PASSWORD      | string             | postgres db writer       | Password for the service-oa-features database                                                |
 | FEATURES_DB_SSL_REQUIRED  | boolean            | postgres db writer       | Whether SSL is required for the service-oa-features database                                 |
+
+## Docker Image
+
+### Building
+
+The content of this repo is packaged into a busybox Docker image. The container will then be used as an init-container, which will then copy it's
+content to a mounted folder, which will be read by the processor and triggerer.
+
+To create the docker container by hand, run the following commands:
+
+```sh
+make dockerbuild
+make dockerlogin
+make dockerpush # push to the ECR registry
+```
+
+### Airflow configuration
+
+The airflow distribution needs to use following additional configuration for it to work (values.yaml of the helm chart):
+
+```yaml
+dagProcessor:
+  # [..]
+  env:
+    - name: PYTHONPATH
+      value: /opt/airflow/dags/python
+  extraVolumes:
+    - name: dags
+      emptyDir: {}
+    - name: tmp
+      emptyDir: {}
+  extraVolumeMounts:
+    - name: dags
+      mountPath: /opt/airflow/dags
+      readOnly: true
+    - name: tmp
+      mountPath: /tmp
+  extraInitContainers:
+    - name: dag-init
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+        readOnlyRootFilesystem: true
+      command:
+        ["sh", "-c", "cp -r /opt/airflow/dags-staging/. /opt/airflow/dags/"]
+      volumeMounts:
+        - name: dags
+          mountPath: /opt/airflow/dags
+        - name: tmp
+          mountPath: /tmp
+
+workers:
+  kubernetes:
+    # same as above
+
+triggerer:
+  # same as above
+```
