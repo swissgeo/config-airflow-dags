@@ -20,7 +20,7 @@ RUN uv export \
 COPY --chown=airflow:root DAG/ /opt/airflow/dag-source/
 # TODO include code in the toolset so that it will be used by airflow when running a DAG
 
-FROM busybox:1.37.0
+FROM busybox:1.38.0
 
 COPY --from=dependencies --chown=50000:0 /opt/airflow/dag-source/ /opt/airflow/dag-source/
 COPY --chown=50000:0 --chmod=0555 deploy-dags.sh /usr/local/bin/deploy-dags
