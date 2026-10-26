@@ -4,7 +4,7 @@ import pyarrow.compute as pc
 import pytest
 from pendulum import DateTime
 
-from toolset.tabular.converter import convert_column
+from swissgeo_toolset.tabular.converter import convert_column
 
 
 def test_convert_column_inexisting_function():

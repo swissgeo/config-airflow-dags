@@ -1,0 +1,4 @@
+# We have to have this ignore here because on the final installation, the dependencies will be in
+# /opt/airflow/dag/python alongside the DAG definitions. Airflow would then parse the dependencies folder
+# for DAG definitions, which we want to avoid
+python/

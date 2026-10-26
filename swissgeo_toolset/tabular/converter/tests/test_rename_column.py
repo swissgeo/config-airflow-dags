@@ -1,7 +1,7 @@
 import pyarrow as pa
 import pytest
 
-from toolset.tabular.converter.rename_column import rename_column
+from swissgeo_toolset.tabular.converter.rename_column import rename_column
 
 
 def test_rename_column_basic():
