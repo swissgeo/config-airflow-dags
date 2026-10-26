@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 
 import pyarrow as pa
 import pytest
@@ -35,7 +35,7 @@ def test_basic_writing_to_s3tables(s3_table):
     data = pa.table(
         {
             "point_id": ["123", "456"],
-            "datetime": [datetime.date(2023, 1, 1), datetime.date(2023, 1, 2)],
+            "datetime": [dt.date(2023, 1, 1), dt.date(2023, 1, 2)],
             "value": [42, 84],
         }
     )
@@ -60,7 +60,7 @@ def test_writing_to_inexisting_s3tables(s3_table):
     data = pa.table(
         {
             "point_id": ["123", "456"],
-            "datetime": [datetime.date(2023, 1, 1), datetime.date(2023, 1, 2)],
+            "datetime": [dt.date(2023, 1, 1), dt.date(2023, 1, 2)],
             "value": [42, 84],
         }
     )
@@ -81,7 +81,7 @@ def test_basic_writing_to_s3tables_replaces_existing(s3_table):
     initial_data = pa.table(
         {
             "point_id": ["123", "456"],
-            "datetime": [datetime.date(2026, 9, 13), datetime.date(2026, 9, 15)],
+            "datetime": [dt.date(2026, 9, 13), dt.date(2026, 9, 15)],
             "value": [42, 1337],
         }
     )
@@ -93,7 +93,7 @@ def test_basic_writing_to_s3tables_replaces_existing(s3_table):
     new_data = pa.table(
         {
             "point_id": ["abc"],
-            "datetime": [datetime.date(2022, 1, 1)],
+            "datetime": [dt.date(2022, 1, 1)],
             "value": [1337],
         }
     )
@@ -114,7 +114,7 @@ def test_writing_to_s3tables_with_differing_column_order(s3_table):
     new_data = pa.table(
         {
             "value": [1337],
-            "datetime": [datetime.date(2022, 1, 1)],
+            "datetime": [dt.date(2022, 1, 1)],
             "point_id": ["abc"],
         }
     )
@@ -139,7 +139,7 @@ def test_writing_to_s3tables_with_differing_column_order(s3_table):
             pa.table(
                 {
                     "point_id": ["abc"],
-                    "datetime": [datetime.date(2022, 1, 1)],
+                    "datetime": [dt.date(2022, 1, 1)],
                     "value": [1337],
                     "another_column": ["this is too much"],
                 }
@@ -160,16 +160,14 @@ def test_writing_to_s3tables_with_differing_column_order(s3_table):
             pa.table(
                 {
                     "point_id": ["abc"],
-                    "datetime": [datetime.date(2022, 1, 1)],
+                    "datetime": [dt.date(2022, 1, 1)],
                     # not enough columns
                 }
             ),
             "Mismatch in columns. Missing columns: ['value']. Excess columns: []",
         ),
         (
-            pa.table(
-                {"point_id": ["abc"], "datetime": [datetime.date(2022, 1, 1)], "not_value": [1337]}
-            ),
+            pa.table({"point_id": ["abc"], "datetime": [dt.date(2022, 1, 1)], "not_value": [1337]}),
             "Mismatch in columns. Missing columns: ['value']. Excess columns: ['not_value']",
         ),
     ],
