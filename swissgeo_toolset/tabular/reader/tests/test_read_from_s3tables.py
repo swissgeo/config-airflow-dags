@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 
 import pyarrow as pa
 import pytest
@@ -38,7 +38,7 @@ def s3_table_with_data(s3_table):
     data = pa.table(
         {
             "point_id": ["123", "456"],
-            "datetime": [datetime.date(2026, 9, 13), datetime.date(2026, 9, 15)],
+            "datetime": [dt.date(2026, 9, 13), dt.date(2026, 9, 15)],
             "value": [42, 1337],
         }
     )
