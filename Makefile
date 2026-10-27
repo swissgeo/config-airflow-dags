@@ -148,6 +148,10 @@ docker-compose-up: docker-network ## Start local dependencies (postgres and iceb
 docker-compose-down: ## Stop local dependencies (postgres and iceberg)
 	docker compose --env-file=${ENV_FILE} down --remove-orphans --rmi local
 
+.PHONY: docker-compose-clean
+docker-compose-clean: ## Clean local dependencies (postgres and iceberg)
+	docker compose --env-file=${ENV_FILE} down --remove-orphans --rmi all --volumes
+
 
 .PHONY: help
 help: ## Display this help
