@@ -13,7 +13,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "apache-airflow>=3.3.2",     # remember to keep in sync with Dockerfile
+    "apache-airflow>=3.4.0b2",     # remember to keep in sync with Dockerfile
     "ipdb>=0.13.13",
     "ipython>=9.17.1",
     "pytest>=9.1.1",

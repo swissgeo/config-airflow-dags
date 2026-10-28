@@ -1,7 +1,7 @@
 # -------- builder stage ----------
 # remember to update the pinned version in pyproject.toml and to keep it in
 # sync with the airflow installation
-FROM apache/airflow:3.3.2-python3.14 AS builder
+FROM apache/airflow:3.4.0b2-python3.14 AS builder
 
 USER root
 WORKDIR /src/
