@@ -42,10 +42,15 @@ services:
         condition: service_completed_successfully
 
   postgres:
-    image: postgres:16
+    image: postgis/postgis:18-3.6-alpine
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+    volumes:
+      - ./drop-superfluous-extensions.sql:/docker-entrypoint-initdb.d/11-drop-extensions.sql
+
+volumes:
+  postgres_data:
