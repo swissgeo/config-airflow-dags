@@ -100,3 +100,15 @@ workers:
 triggerer:
   # same as above
 ```
+
+## Models
+
+Models are stored in the folder models. These models contain the definitions and neccessary code to create
+the tables in databases.
+
+As of now, there are models for the postgres database for `service-oa-features` and `s3tables`. The s3tables are used
+as intermediary steps when ingesting tabular data, the postgres ones are the destination of these ingestions.
+
+For more information, read the respective documentations:
+
+- [service-oa-features](./models/service_oa_features/README.md)
