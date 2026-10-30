@@ -13,7 +13,9 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "apache-airflow>=3.4.0b2",     # remember to keep in sync with Dockerfile
+    "alembic>=1.20.1",
+    "apache-airflow>=3.4.0b2",   # remember to keep in sync with Dockerfile
+    "geoalchemy2>=0.20.0",
     "ipdb>=0.13.13",
     "ipython>=9.17.1",
     "pytest>=9.1.1",
@@ -22,6 +24,7 @@ dev = [
     "pytest-mock>=3.16.0",
     "pytest-xdist>=3.8.0",
     "ruff>=0.16.8",
+    "sqlalchemy>=2.1.6",
     "ty>=0.0.83",
     "types-boto3[s3]>=1.43.112",
 ]
@@ -89,6 +92,11 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
     "B018", # Ignore useless expressions, they're used for defining the DAG flow
 ]
 
+"models/service_oa_features/**" = [
+    "N999", # ignore invalid module name
+    "E501", # Ignore line too long. Alembic generates long lines
+]
+
 #------------------------------------------------------------------------------
 # Isort configuration
 [tool.ruff.lint.isort]
@@ -100,8 +108,18 @@ section-order = [
     "local-folder",
 ]
 
-# [tool.ty.environment]
-# root = ["."]
+[tool.ty.environment]
+# adding the alembic root here as well so that import works
+# mirrors the setting `prepend_sys_path` in alembic.ini
+root = [".", "models/service_oa_features"]
+
+[[tool.ty.overrides]]
+include = ["**/migrations/*"]
+
+[tool.ty.overrides.rules]
+# alembic has dynamically registered attributes ("create_geospatial_table")
+# which lead to a type checker error
+unresolved-attribute = "ignore"
 
 #===============================================================================
 # Pytest configuration
