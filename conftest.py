@@ -10,8 +10,11 @@ import pytest
 from psycopg import sql
 from pyiceberg.catalog import Catalog
 from pyiceberg.catalog import load_catalog as pyiceberg_load_catalog
+from sqlalchemy import create_engine
 from types_boto3_s3 import S3Client
 from types_boto3_s3.literals import BucketLocationConstraintType
+
+from models.service_oa_features.models import Base
 
 Bucket = Literal["raw", "sanitize", "load"]
 
@@ -71,14 +74,47 @@ def load_catalog() -> Generator[tuple[Catalog, str]]:
 
 @pytest.fixture
 def postgres_connection() -> Generator[psycopg.Connection]:
+    """Create a unique database and return the connection to it"""
     with psycopg.connect(
         host=os.environ["FEATURES_DB_ENDPOINT"],
         port=os.environ["FEATURES_DB_PORT"],
         dbname=os.environ["FEATURES_DB_NAME"],
         user=os.environ["FEATURES_DB_USER"],
         password=os.environ["FEATURES_DB_PASSWORD"],
-    ) as conn:
-        yield conn
+    ) as admin_conn:
+        db_name = f"test_{uuid.uuid4().hex[:8]}"
+
+        # enable autocommit because CREATE/DROP cannot run inside a transaction
+        admin_conn.autocommit = True
+
+        with admin_conn.cursor() as admin_cursor:
+            admin_cursor.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(db_name)))
+
+        # Open a new connection to the unique test database
+        test_conn = psycopg.connect(
+            host=os.environ["FEATURES_DB_ENDPOINT"],
+            port=os.environ["FEATURES_DB_PORT"],
+            dbname=db_name,
+            user=os.environ["FEATURES_DB_USER"],
+            password=os.environ["FEATURES_DB_PASSWORD"],
+        )
+
+        with test_conn.cursor() as cursor:
+            cursor.execute(sql.SQL("CREATE EXTENSION postgis"))
+            test_conn.commit()
+
+        yield test_conn
+
+        # terminate any other backends connected to the test DB, then drop it
+        with admin_conn.cursor() as cur:
+            cur.execute(
+                sql.SQL(
+                    "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = {} "
+                    "AND pid <> pg_backend_pid()"
+                ).format(sql.Literal(db_name))
+            )
+
+            cur.execute(sql.SQL("DROP DATABASE IF EXISTS {}").format(sql.Identifier(db_name)))
 
 
 @pytest.fixture
@@ -134,3 +170,27 @@ def landing_zone() -> Generator[tuple[S3Client, str]]:
         for obj in page.get("Contents", []):
             s3.delete_object(Bucket=bucket_name, Key=obj["Key"])
     s3.delete_bucket(Bucket=bucket_name)
+
+
+@pytest.fixture
+def features_database(
+    postgres_connection: psycopg.Connection, monkeypatch: pytest.MonkeyPatch
+) -> Generator[psycopg.Connection]:
+    """
+    Create a database with the sqlalchemy models applied
+    """
+    conn = postgres_connection
+    db_name = conn.info.dbname
+    engine = create_engine("postgresql+psycopg://", creator=lambda: conn)
+
+    # create all the sqlalchemy models
+    Base.metadata.create_all(engine)
+
+    # override the db name to be the unique one
+    monkeypatch.setenv("FEATURES_DB_NAME", db_name)
+
+    yield conn
+
+    conn.rollback()
+    engine.dispose()
+    conn.close()
