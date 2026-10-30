@@ -1,9 +1,10 @@
 from logging.config import fileConfig
+from os import environ, getenv
 
 from alembic import context
 from geoalchemy2 import alembic_helpers
 from models.base import Base
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import URL, engine_from_config, pool
 
 # importing all the models. They need to be exposed in __init__.py
 import models  # noqa: F401
@@ -11,6 +12,24 @@ import models  # noqa: F401
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+
+# Override sqlalchemy.url from environment variable if present
+use_rds_proxy = getenv("USE_RDS_PROXY", "").lower() in ("true", "1")
+if use_rds_proxy:
+    url = URL.create(
+        "postgresql+psycopg",
+        username=environ["PGUSER"],
+        password=environ["PGPASSWORD"],
+        host="localhost",
+        port=int(environ["FORWARD_PORT"]),
+        database=environ["PGDATABASE"],
+    )
+    print("Applying Alembic on the RDS proxy")  # noqa: T201
+    config.set_main_option(
+        "sqlalchemy.url", url.render_as_string(hide_password=False).replace("%", "%%")
+    )
+
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
