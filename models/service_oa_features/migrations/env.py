@@ -1,4 +1,5 @@
 from logging.config import fileConfig
+from os import getenv
 
 from alembic import context
 from geoalchemy2 import alembic_helpers
@@ -11,6 +12,14 @@ import models  # noqa: F401
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+
+# Override sqlalchemy.url from environment variable if present
+sqlalchemy_url = getenv("SQLALCHEMY_URL")
+if sqlalchemy_url:
+    print(f"Applying on {sqlalchemy_url.split('@')[1]}")  # noqa: T201
+    config.set_main_option("sqlalchemy.url", sqlalchemy_url)
+
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
