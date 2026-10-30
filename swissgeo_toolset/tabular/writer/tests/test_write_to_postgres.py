@@ -6,6 +6,14 @@ from psycopg import sql
 from swissgeo_toolset.tabular.writer import write_to_postgres
 
 
+@pytest.fixture(autouse=True)
+def test_table(postgres_table, monkeypatch):
+    # override the db name to be the unique one
+    connection, _ = postgres_table
+    db_name = connection.info.dbname
+    monkeypatch.setenv("FEATURES_DB_NAME", db_name)
+
+
 def test_write_to_postgres_basic(postgres_table):
     conn, table_name = postgres_table
     data = pa.table({"id": [1, 2, 3], "label": ["a", "b", "c"]})

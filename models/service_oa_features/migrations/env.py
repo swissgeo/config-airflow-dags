@@ -3,11 +3,11 @@ from os import getenv
 
 from alembic import context
 from geoalchemy2 import alembic_helpers
-from models.base import Base
 from sqlalchemy import engine_from_config, pool
 
 # importing all the models. They need to be exposed in __init__.py
 import models  # noqa: F401
+from models.service_oa_features.models.base import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

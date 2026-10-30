@@ -108,10 +108,10 @@ section-order = [
     "local-folder",
 ]
 
-[tool.ty.environment]
-# adding the alembic root here as well so that import works
-# mirrors the setting `prepend_sys_path` in alembic.ini
-root = [".", "models/service_oa_features"]
+# [tool.ty.environment]
+# # adding the alembic root here as well so that import works
+# # mirrors the setting `prepend_sys_path` in alembic.ini
+# root = [".", "models/service_oa_features"]
 
 [[tool.ty.overrides]]
 include = ["**/migrations/*"]
