@@ -19,7 +19,7 @@ class ForecastParameterBase(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
     # Value data
-    datetime: Mapped[_datetime] = mapped_column(DateTime)
+    datetime: Mapped[_datetime] = mapped_column(DateTime(timezone=True))
     feature_id: Mapped[str] = mapped_column(String(64))
 
     # Point data
