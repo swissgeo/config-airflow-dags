@@ -1,9 +1,10 @@
 from datetime import datetime as _datetime
 
 from geoalchemy2 import Geometry
-from models.base import Base
 from sqlalchemy import DateTime, Float, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
+
+from models.service_oa_features.models.base import Base
 
 
 class ForecastParameterBase(Base):
