@@ -1,0 +1,33 @@
+{
+  "tableBucketARN": "$RAW_TABLE_BUCKET_ARN",
+  "namespace": "ch_meteoschweiz",
+  "name": "local_forecast_tre200px",
+  "format": "ICEBERG",
+  "metadata": {
+    "iceberg": {
+      "schema": {
+        "fields": [
+          {
+            "id": 1,
+            "name": "point_id",
+            "type": "int",
+            "required": true
+          },
+          {
+            "id": 2,
+            "name": "point_type_id",
+            "type": "int",
+            "required": true
+          },
+          { "id": 3, "name": "Date", "type": "string", "required": true },
+          {
+            "id": 4,
+            "name": "tre200px",
+            "type": "float",
+            "required": true
+          }
+        ]
+      }
+    }
+  }
+}
