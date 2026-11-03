@@ -16,6 +16,7 @@ dev = [
     "apache-airflow>=3.4.0b2",     # remember to keep in sync with Dockerfile
     "ipdb>=0.13.13",
     "ipython>=9.17.1",
+    "pre-commit>=4.7.0",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "pytest-dotenv>=0.5.2",
