@@ -55,6 +55,17 @@ def write_to_db(data: pa.Table) -> None:
     write_to_postgres(data, "ch_meteoschweiz_local_forecast_tre200px")
 
 
+def task_write_to_s3tables(data: pa.Table, namespace: str, table_name: str) -> None:
+    """Stupid task to simulate the writing of data to an s3 table
+
+    This is used in the integration tests for developing the abilities to test
+    the database writing with concrete models.
+    Not to be executed on airflow. I will probably remove this once we have
+    a real local_forecast DAG
+    """
+    write_to_s3tables(data, "raw", namespace, table_name)
+
+
 # Define tasks
 first_step_task = PythonOperator(
     task_id="first_step_task",

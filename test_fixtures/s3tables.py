@@ -1,12 +1,15 @@
 import contextlib
+import json
 import os
 import uuid
 from collections.abc import Generator
+from pathlib import Path
 from typing import Literal
 
 import pytest
 from pyiceberg.catalog import Catalog
 from pyiceberg.catalog import load_catalog as pyiceberg_load_catalog
+from pyiceberg.schema import Schema
 
 Bucket = Literal["raw", "sanitize", "load"]
 
@@ -53,7 +56,7 @@ def raw_catalog() -> Generator[tuple[Catalog, str]]:
 
 
 @pytest.fixture
-def santitize_catalog() -> Generator[tuple[Catalog, str]]:
+def sanitize_catalog() -> Generator[tuple[Catalog, str]]:
     with _make_catalog("sanitize") as (catalog, namespace):
         yield catalog, namespace
 
@@ -62,3 +65,42 @@ def santitize_catalog() -> Generator[tuple[Catalog, str]]:
 def load_catalog() -> Generator[tuple[Catalog, str]]:
     with _make_catalog("load") as (catalog, namespace):
         yield catalog, namespace
+
+
+@pytest.fixture
+def s3tables_table(raw_catalog, sanitize_catalog, load_catalog):
+    """Create a table in s3tables based on the definition of a model file
+    that resides in models/s3tables
+    """
+    catalog: Catalog
+    table_identifier: str
+
+    def _make(schema_file: str, bucket: str) -> tuple[str, str]:
+        nonlocal table_identifier, catalog
+
+        path = Path("models/s3tables/models/") / schema_file
+        with open(path) as f:
+            schema = json.load(f)
+
+        table_name = schema["name"]
+        table_schema = schema["metadata"]["iceberg"]["schema"]
+
+        if bucket == "raw":
+            catalog_data = raw_catalog
+        elif bucket == "sanitize":
+            catalog_data = sanitize_catalog
+        elif bucket == "load":
+            catalog_data = load_catalog
+
+        catalog, namespace = catalog_data
+
+        iceberg_schema = Schema.model_validate(table_schema)
+        table_identifier = f"{namespace}.{table_name}"
+        catalog.create_table(table_identifier, iceberg_schema)
+
+        return table_name, namespace
+
+    yield _make
+
+    catalog.drop_table(table_identifier)
+    # namespace is being dropped by the catalog fixture

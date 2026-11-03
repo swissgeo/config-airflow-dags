@@ -76,8 +76,8 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 # ruff ignore per files
 [tool.ruff.lint.per-file-ignores]
 
-# ignores for the tests in toolset and integrations_tests folder
-"**/*tests/**/test_*" = [
+# Shared ignores for tests, conftest files, and test fixtures
+"{**/*tests/**/test_*,**/conftest.py,**/test_fixtures/**}" = [
     "S101",    # Ignore usage of assert statements in tests
     "S106",    # Ignore hard coded passwords in tests
     "ANN201",  # Ignore missing return type hints in tests
@@ -123,6 +123,9 @@ unresolved-attribute = "ignore"
 pythonpath = ["."]
 python_files = ["test_*.py"]
 env_files = [".env.default"]
+
+# uncomment this to get some output
+#addopts = ["-s", "-v"]
 
 
 #==============================================================================
