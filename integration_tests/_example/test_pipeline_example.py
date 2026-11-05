@@ -1,11 +1,13 @@
 import datetime as dt
 
 import pyarrow as pa
+import pytest
 from psycopg.rows import dict_row
 from pyiceberg.schema import Schema
 from pyiceberg.types import IntegerType, NestedField, StringType
 
 import DAG._example.pipeline_example as example_dag
+from swissgeo_toolset.tabular.writer.write_to_s3tables import WriteToS3TablesError
 
 
 def test_pipeline_example(raw_catalog, landing_zone, monkeypatch):
@@ -88,3 +90,51 @@ def test_pipeline_example_db_writing(features_database):
         rows = cur.fetchall()
 
     assert data.to_pylist() == rows
+
+
+def test_pipeline_example_s3tables_writing(s3tables_table, raw_catalog):
+    """Test the writing to a pre-defined s3tables table"""
+    data = pa.table(
+        {"point_id": [1], "point_type_id": [2], "Date": ["202611021800"], "tre200px": [6]}
+    )
+
+    table_name, namespace = s3tables_table(
+        "ch_meteoschweiz/local_forecast/raw/tre200px.json", "raw"
+    )
+
+    example_dag.task_write_to_s3tables(data, namespace, table_name)
+
+    catalog, namespace = raw_catalog
+    identifier = f"{namespace}.{table_name}"
+    table = catalog.load_table(identifier)
+    table_data = table.scan().to_arrow()
+
+    assert data.to_pylist() == table_data.to_pylist()
+
+
+def test_pipeline_example_s3tables_writing_invalid_schema(s3tables_table, raw_catalog):
+    """Test the writing to a pre-defined s3tables table with a column mismatch"""
+    data = pa.table(
+        {
+            "point_id": [1],
+            "point_type_id": [2],
+            "Date": ["202611021800"],
+            "tre200px": [6],
+            "additional_field": ["notwanted"],
+        }
+    )
+
+    table_name, namespace = s3tables_table(
+        "ch_meteoschweiz/local_forecast/raw/tre200px.json", "raw"
+    )
+
+    with pytest.raises(WriteToS3TablesError):
+        example_dag.task_write_to_s3tables(data, namespace, table_name)
+
+    catalog, namespace = raw_catalog
+    identifier = f"{namespace}.{table_name}"
+    table = catalog.load_table(identifier)
+    table_data = table.scan().to_arrow()
+
+    # should be empty this time
+    assert table_data.to_pylist() == []
