@@ -10,15 +10,15 @@ import DAG._example.pipeline_example as example_dag
 from swissgeo_toolset.tabular.writer.write_to_s3tables import WriteToS3TablesError
 
 
-def test_pipeline_example(raw_catalog, landing_zone, monkeypatch):
+def test_pipeline_example(raw_catalog, landing_zone, monkeypatch, s3tables_namespace):
     """Download a CSV file, parse it and put the content in a s3 table"""
     s3, bucket_name = landing_zone
 
-    catalog, namespace = raw_catalog
+    catalog = raw_catalog
     table_name = "data"
-    identifier = f"{namespace}.{table_name}"
+    identifier = f"{s3tables_namespace}.{table_name}"
 
-    monkeypatch.setattr(example_dag, "namespace", namespace)
+    monkeypatch.setattr(example_dag, "namespace", s3tables_namespace)
     monkeypatch.setenv("LANDING_ZONE_BUCKET", bucket_name)
 
     table_handle = catalog.create_table(
@@ -92,27 +92,27 @@ def test_pipeline_example_db_writing(features_database):
     assert data.to_pylist() == rows
 
 
-def test_pipeline_example_s3tables_writing(s3tables_table, raw_catalog):
+def test_pipeline_example_s3tables_writing(s3tables_table_raw, raw_catalog, s3tables_namespace):
     """Test the writing to a pre-defined s3tables table"""
     data = pa.table(
         {"point_id": [1], "point_type_id": [2], "Date": ["202611021800"], "tre200px": [6]}
     )
 
-    table_name, namespace = s3tables_table(
-        "ch_meteoschweiz/local_forecast/raw/tre200px.json", "raw"
-    )
+    table_name, _ = s3tables_table_raw("ch_meteoschweiz/local_forecast/raw/tre200px.json")
 
-    example_dag.task_write_to_s3tables(data, namespace, table_name)
+    example_dag.task_write_to_s3tables(data, s3tables_namespace, table_name)
 
-    catalog, namespace = raw_catalog
-    identifier = f"{namespace}.{table_name}"
+    catalog = raw_catalog
+    identifier = f"{s3tables_namespace}.{table_name}"
     table = catalog.load_table(identifier)
     table_data = table.scan().to_arrow()
 
     assert data.to_pylist() == table_data.to_pylist()
 
 
-def test_pipeline_example_s3tables_writing_invalid_schema(s3tables_table, raw_catalog):
+def test_pipeline_example_s3tables_writing_invalid_schema(
+    s3tables_table_raw, raw_catalog, s3tables_namespace
+):
     """Test the writing to a pre-defined s3tables table with a column mismatch"""
     data = pa.table(
         {
@@ -124,15 +124,13 @@ def test_pipeline_example_s3tables_writing_invalid_schema(s3tables_table, raw_ca
         }
     )
 
-    table_name, namespace = s3tables_table(
-        "ch_meteoschweiz/local_forecast/raw/tre200px.json", "raw"
-    )
+    table_name, _ = s3tables_table_raw("ch_meteoschweiz/local_forecast/raw/tre200px.json")
 
     with pytest.raises(WriteToS3TablesError):
-        example_dag.task_write_to_s3tables(data, namespace, table_name)
+        example_dag.task_write_to_s3tables(data, s3tables_namespace, table_name)
 
-    catalog, namespace = raw_catalog
-    identifier = f"{namespace}.{table_name}"
+    catalog = raw_catalog
+    identifier = f"{s3tables_namespace}.{table_name}"
     table = catalog.load_table(identifier)
     table_data = table.scan().to_arrow()
 

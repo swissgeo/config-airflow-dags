@@ -10,11 +10,11 @@ from swissgeo_toolset.tabular.reader import read_from_s3tables
 
 
 @pytest.fixture
-def s3_table(raw_catalog):
+def s3_table(raw_catalog, s3tables_namespace):
     """Create an intermediary table on iceberg"""
-    catalog, namespace = raw_catalog
+    catalog = raw_catalog
     table_name = "test_table"
-    identifier = f"{namespace}.{table_name}"
+    identifier = f"{s3tables_namespace}.{table_name}"
 
     table_handle = catalog.create_table(
         identifier=identifier,
@@ -25,7 +25,7 @@ def s3_table(raw_catalog):
         ),
     )
 
-    yield {"namespace": namespace, "table_name": table_name, "table_handle": table_handle}
+    yield {"namespace": s3tables_namespace, "table_name": table_name, "table_handle": table_handle}
 
     catalog.drop_table(identifier)
 

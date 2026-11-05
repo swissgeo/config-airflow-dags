@@ -20,8 +20,13 @@ _BUCKET_ENV_VARS: dict[Bucket, str] = {
 }
 
 
+@pytest.fixture(scope="class")
+def s3tables_namespace():
+    return f"test_{uuid.uuid4().hex[:8]}"
+
+
 @contextlib.contextmanager
-def _make_catalog(bucket: Bucket) -> Generator[tuple[Catalog, str]]:
+def _make_catalog(bucket: Bucket, s3tables_namespace: str) -> Generator[Catalog]:
     "Create an iceberg catalog and delete if after using"
     bucket_env_var = _BUCKET_ENV_VARS[bucket]
 
@@ -38,69 +43,97 @@ def _make_catalog(bucket: Bucket) -> Generator[tuple[Catalog, str]]:
             "s3.region": os.environ.get("AWS_REGION", "eu-central-1"),
         },
     )
-    namespace = f"test_{uuid.uuid4().hex[:8]}"
-    catalog.create_namespace(namespace)
+    catalog.create_namespace(s3tables_namespace)
 
-    yield catalog, namespace
+    yield catalog
 
-    if catalog and namespace:
-        for table_id in catalog.list_tables(namespace):
+    if catalog and s3tables_namespace:
+        for table_id in catalog.list_tables(s3tables_namespace):
             catalog.drop_table(table_id)
-        catalog.drop_namespace(namespace)
+        catalog.drop_namespace(s3tables_namespace)
 
 
 @pytest.fixture
-def raw_catalog() -> Generator[tuple[Catalog, str]]:
-    with _make_catalog("raw") as (catalog, namespace):
-        yield catalog, namespace
+def raw_catalog(s3tables_namespace) -> Generator[Catalog]:
+    print("###########33 CREATING A RAW CATALOG")
+    with _make_catalog("raw", s3tables_namespace) as (catalog):
+        yield catalog
 
 
 @pytest.fixture
-def sanitize_catalog() -> Generator[tuple[Catalog, str]]:
-    with _make_catalog("sanitize") as (catalog, namespace):
-        yield catalog, namespace
+def sanitize_catalog(s3tables_namespace) -> Generator[Catalog]:
+    with _make_catalog("sanitize", s3tables_namespace) as (catalog):
+        yield catalog
 
 
 @pytest.fixture
-def load_catalog() -> Generator[tuple[Catalog, str]]:
-    with _make_catalog("load") as (catalog, namespace):
-        yield catalog, namespace
+def load_catalog(s3tables_namespace) -> Generator[Catalog]:
+    with _make_catalog("load", s3tables_namespace) as (catalog):
+        yield catalog
+
+
+def _create_s3tables_with_model(schema_file, catalog, s3tables_namespace) -> tuple[str, str]:
+    path = Path("models/s3tables/models/") / schema_file
+    with open(path) as f:
+        schema = json.load(f)
+
+    table_name = schema["name"]
+    table_schema = schema["metadata"]["iceberg"]["schema"]
+
+    iceberg_schema = Schema.model_validate(table_schema)
+    table_identifier = f"{s3tables_namespace}.{table_name}"
+    catalog.create_table(table_identifier, iceberg_schema)
+
+    return table_name, table_identifier
 
 
 @pytest.fixture
-def s3tables_table(raw_catalog, sanitize_catalog, load_catalog):
-    """Create a table in s3tables based on the definition of a model file
-    that resides in models/s3tables
-    """
-    catalog: Catalog
+def s3tables_table_raw(s3tables_namespace, raw_catalog: Catalog):
     table_identifier: str
 
-    def _make(schema_file: str, bucket: str) -> tuple[str, str]:
-        nonlocal table_identifier, catalog
+    def _make(schema_file: str) -> tuple[str, str]:
+        nonlocal table_identifier
 
-        path = Path("models/s3tables/models/") / schema_file
-        with open(path) as f:
-            schema = json.load(f)
-
-        table_name = schema["name"]
-        table_schema = schema["metadata"]["iceberg"]["schema"]
-
-        if bucket == "raw":
-            catalog_data = raw_catalog
-        elif bucket == "sanitize":
-            catalog_data = sanitize_catalog
-        elif bucket == "load":
-            catalog_data = load_catalog
-
-        catalog, namespace = catalog_data
-
-        iceberg_schema = Schema.model_validate(table_schema)
-        table_identifier = f"{namespace}.{table_name}"
-        catalog.create_table(table_identifier, iceberg_schema)
-
-        return table_name, namespace
+        table_name, table_identifier = _create_s3tables_with_model(
+            schema_file, raw_catalog, s3tables_namespace
+        )
+        return table_name, table_identifier
 
     yield _make
 
-    catalog.drop_table(table_identifier)
-    # namespace is being dropped by the catalog fixture
+    raw_catalog.drop_table(table_identifier)
+
+
+@pytest.fixture
+def s3tables_table_sanitize(s3tables_namespace, raw_catalog: Catalog):
+    table_identifier: str
+
+    def _make(schema_file: str) -> tuple[str, str]:
+        nonlocal table_identifier
+
+        table_name, table_identifier = _create_s3tables_with_model(
+            schema_file, raw_catalog, s3tables_namespace
+        )
+        return table_name, table_identifier
+
+    yield _make
+
+    raw_catalog.drop_table(table_identifier)
+
+
+@pytest.fixture
+def s3tables_table_load(s3tables_namespace, raw_catalog: Catalog):
+    table_identifier: str
+
+    def _make(schema_file: str) -> tuple[str, str]:
+        nonlocal table_identifier
+
+        table_name, table_identifier = _create_s3tables_with_model(
+            schema_file, raw_catalog, s3tables_namespace
+        )
+
+        return table_name, table_identifier
+
+    yield _make
+
+    raw_catalog.drop_table(table_identifier)
