@@ -182,4 +182,4 @@ def test_write_invalid_schema(s3_table, data, error):
             table_name=s3_table["table_name"],
         )
 
-    assert str(e.value) == error
+    assert error in str(e.value)

@@ -54,7 +54,10 @@ def write_to_s3tables(
             logger.debug("Casting data schema to %s", table_schema)
             arrow_table = arrow_table.select(table_schema.names).cast(table_schema)
         except Exception as e:
-            raise WriteToS3TablesError("Failed to cast data schema") from e
+            raise WriteToS3TablesError(
+                f"Failed to cast data schema from\n {arrow_table.schema}\n to\n {table_schema} "
+                f"because of {e!s}"
+            ) from e
 
         logger.info("Writing table %s to S3 tables catalog", table_handle.name())
 
