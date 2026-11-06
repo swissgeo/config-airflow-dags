@@ -14,6 +14,9 @@ def convert_column(
 ) -> pa.Table:
     """Converts a column in the table using pyarrow compute functions
 
+    A list of the available compute functions can be found here:
+    https://arrow.apache.org/docs/cpp/compute.html#compute-function-list
+
     Args:
         arrow_table (pa.Table): The input table.
         column_name (str): The name of the column to convert.

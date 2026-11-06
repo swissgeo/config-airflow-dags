@@ -1,0 +1,51 @@
+point_id;point_type_id;station_abbr;postal_code;point_name;point_type_de;point_type_fr;point_type_it;point_type_en;point_height_masl;point_coordinates_lv95_east;point_coordinates_lv95_north;point_coordinates_wgs84_lat;point_coordinates_wgs84_lon
+1;1;ARO;;Arosa;Station;Station;Stazione;Station;1878;2771031;1184830;46.792661;9.679014
+2;1;RAG;;Bad Ragaz;Station;Station;Stazione;Station;497;2756911;1209351;47.016631;9.502594
+3;1;HAI;;Salen-Reutenen;Station;Station;Stazione;Station;719;2719100;1279047;47.651242;9.023911
+4;1;HLL;;Hallau;Station;Station;Stazione;Station;419;2677457;1283472;47.697278;8.470464
+6;1;DEM;;Delémont;Station;Station;Stazione;Station;439;2593270;1244543;47.351706;7.349567
+7;1;EBK;;Ebnat-Kappel;Station;Station;Stazione;Station;623;2726348;1237176;47.273389;9.108494
+8;1;ELM;;Elm;Station;Station;Stazione;Station;958;2732266;1198424;46.923742;9.175347
+9;1;EIN;;Einsiedeln;Station;Station;Stazione;Station;911;2699984;1221068;47.133042;8.756556
+10;1;ANT;;Andermatt;Station;Station;Stazione;Station;1435;2687445;1165044;46.630914;8.580553
+28;1;ROB;;Poschiavo / Robbia;Station;Station;Stazione;Station;1078;2801994;1136249;46.347217;10.063031
+29;1;SAM;;Samedan;Station;Station;Stazione;Station;1709;2787251;1155685;46.526247;9.879469
+30;1;SCU;;Scuol;Station;Station;Stazione;Station;1304;2817139;1186393;46.793275;10.283267
+31;1;DOL;;La Dôle;Station;Station;Stazione;Station;1670;2497059;1142373;46.424794;6.099453
+32;1;PAY;;Payerne;Station;Station;Stazione;Station;490;2562131;1184612;46.811581;6.942469
+33;1;JUN;;Jungfraujoch;Station;Station;Stazione;Station;3571;2641939;1155287;46.547556;7.985444
+34;1;WYN;;Wynau;Station;Station;Stazione;Station;422;2626405;1233849;47.255025;7.787475
+35;1;SAE;;Säntis;Station;Station;Stazione;Station;2501;2744188;1234920;47.249447;9.343469
+36;1;VAD;;Vaduz;Station;Station;Stazione;Station;457;2757724;1221699;47.127472;9.517578
+37;1;AIG;;Aigle;Station;Station;Stazione;Station;381;2560404;1130713;46.326647;6.924472
+38;1;MLS;;Le Moléson;Station;Station;Stazione;Station;1974;2567718;1155077;46.546197;7.017753
+61;1;PUY;;Pully;Station;Station;Stazione;Station;456;2540819;1151511;46.512283;6.667517
+63;1;ABO;;Adelboden;Station;Station;Stazione;Station;1321;2609372;1148939;46.491703;7.560703
+64;1;VIS;;Visp;Station;Station;Stazione;Station;639;2631151;1128024;46.3029;7.842958
+65;1;CDF;;La Chaux-de-Fonds;Station;Station;Stazione;Station;1017;2550919;1214862;47.082947;6.792314
+67;1;BUS;;Buchs / Aarau;Station;Station;Stazione;Station;387;2648396;1248370;47.384381;8.07955
+69;1;ENG;;Engelberg;Station;Station;Stazione;Station;1036;2674162;1186069;46.821639;8.410514
+611300;2;;6113;Romoos;Zentrum Postleitzahl;Centre code postal;Centro codice postale;Postal code center;780;2644359;1206766;47.010458;8.021989
+611400;2;;6114;Steinhuserberg;Zentrum Postleitzahl;Centre code postal;Centro codice postale;Postal code center;867;2646157;1210525;47.044147;8.046017
+612200;2;;6122;Menznau;Zentrum Postleitzahl;Centre code postal;Centro codice postale;Postal code center;600;2645630;1214875;47.083311;8.039519
+612300;2;;6123;Geiss;Zentrum Postleitzahl;Centre code postal;Centro codice postale;Postal code center;614;2647049;1215732;47.090922;8.058294
+612500;2;;6125;Menzberg;Zentrum Postleitzahl;Centre code postal;Centro codice postale;Postal code center;1008;2639492;1208652;47.027731;7.95815
+612600;2;;6126;Daiwil;Zentrum Postleitzahl;Centre code postal;Centro codice postale;Postal code center;632;2643601;1215893;47.092606;8.0129
+613000;2;;6130;Willisau;Zentrum Postleitzahl;Centre code postal;Centro codice postale;Postal code center;582;2641841;1218849;47.119308;7.989994
+613200;2;;6132;Rohrmatt;Zentrum Postleitzahl;Centre code postal;Centro codice postale;Postal code center;691;2641641;1214786;47.082775;7.986983
+613300;2;;6133;Hergiswil b. Willisau;Zentrum Postleitzahl;Centre code postal;Centro codice postale;Postal code center;658;2639239;1214487;47.080231;7.955328
+620700;2;;6207;Nottwil;Zentrum Postleitzahl;Centre code postal;Centro codice postale;Postal code center;533;2652908;1220634;47.134569;8.136031
+620800;2;;6208;Oberkirch LU;Zentrum Postleitzahl;Centre code postal;Centro codice postale;Postal code center;515;2651164;1223494;47.160431;8.113367
+494;3;;;Cabane Rambert CAS;Point of Interest;Point of Interest;Point of Interest;Point of Interest;2580;2576517;1119908;46.230206;7.134239
+495;3;;;Cabane du Vélan CAS;Point of Interest;Point of Interest;Point of Interest;Point of Interest;2642;2585009;1085057;45.916944;7.245431
+496;3;;;Carschinahütte SAC;Point of Interest;Point of Interest;Point of Interest;Point of Interest;2236;2781628;1208990;47.007078;9.827378
+497;3;;;Capanna Cadlimo CAS;Point of Interest;Point of Interest;Point of Interest;Point of Interest;2570;2696326;1158586;46.571611;8.695158
+498;3;;;Claridenhütte SAC;Point of Interest;Point of Interest;Point of Interest;Point of Interest;2453;2714155;1190910;46.859517;8.935722
+499;3;;;Doldenhornhütte SAC;Point of Interest;Point of Interest;Point of Interest;Point of Interest;1915;2619869;1148432;46.486906;7.697408
+500;3;;;Gelmerhütte SAC;Point of Interest;Point of Interest;Point of Interest;Point of Interest;2412;2669236;1164845;46.631264;8.342769
+501;3;;;Bordierhütte SAC;Point of Interest;Point of Interest;Point of Interest;Point of Interest;2886;2631773;1110429;46.144594;7.849844
+502;3;;;Chamanna Coaz CAS;Point of Interest;Point of Interest;Point of Interest;Point of Interest;2610;2784358;1139740;46.383683;9.835442
+504;3;;;Enderlinhütte SAC;Point of Interest;Point of Interest;Point of Interest;Point of Interest;1501;2760560;1211917;47.038831;9.551481
+505;3;;;Mutthornhütte SAC;Point of Interest;Point of Interest;Point of Interest;Point of Interest;2901;2630059;1148399;46.486236;7.830111
+506;3;;;Chamanna da Tschierva CAS;Point of Interest;Point of Interest;Point of Interest;Point of Interest;2583;2787719;1142091;46.403889;9.880056
+507;3;;;Camona da Medel CAS;Point of Interest;Point of Interest;Point of Interest;Point of Interest;2524;2712938;1166539;46.640536;8.913758
