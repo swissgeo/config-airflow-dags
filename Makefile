@@ -123,12 +123,12 @@ test-ci: ## Run tests in the CI
 	# able to merge PRs even if they decrease the coverage. The coverage report will be used in
 	# codecov.io to track the coverage over time and to check if it decreases or not. Also
 	# the coverage report is only loaded if make test-ci is successful.
-	$(TEST) --cov --cov-branch --cov-report=xml:coverage.xml -n 10
+	$(TEST) --cov --cov-branch --cov-report=xml:coverage.xml -n 10 --dist=loadscope
 
 
 .PHONY: test
 test: ## Run tests locally
-	$(TEST) --cov --cov-branch --cov-report=term --cov-report=html -n 10
+	$(TEST) --cov --cov-branch --cov-report=term --cov-report=html -n 10 --dist=loadscope
 
 
 docker-network:

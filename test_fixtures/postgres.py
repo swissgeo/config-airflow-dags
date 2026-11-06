@@ -56,7 +56,7 @@ def postgres_connection() -> Generator[psycopg.Connection]:
 
 
 @pytest.fixture
-def postgres_table(
+def basic_postgres_table(
     postgres_connection: psycopg.Connection,
 ) -> Generator[tuple[psycopg.Connection, str]]:
     """Create a temporary table and yield (connection, qualified_table_name).
@@ -70,6 +70,34 @@ def postgres_table(
 
     with postgres_connection.cursor() as cur:
         query = sql.SQL("CREATE TABLE {} (id INTEGER, label TEXT)").format(
+            sql.Identifier(table_name)
+        )
+        cur.execute(query)
+        postgres_connection.commit()
+
+    yield postgres_connection, table_name
+
+    with postgres_connection.cursor() as cur:
+        query = sql.SQL("DROP TABLE IF EXISTS {}").format(sql.Identifier(table_name))
+        cur.execute(query)
+        postgres_connection.commit()
+
+
+@pytest.fixture
+def geometry_postgres_table(
+    postgres_connection: psycopg.Connection,
+) -> Generator[tuple[psycopg.Connection, str]]:
+    """Create a temporary table with a geometry field and yield (connection, qualified_table_name).
+
+    The table has a fixed schema: id INTEGER, geometry GEOMETRY.
+    It is dropped after the test regardless of outcome.
+    """
+
+    # using unique names for concurrent testing
+    table_name = f"test_{uuid.uuid4().hex[:8]}"
+
+    with postgres_connection.cursor() as cur:
+        query = sql.SQL("CREATE TABLE {} (id INTEGER, geometry GEOMETRY)").format(
             sql.Identifier(table_name)
         )
         cur.execute(query)
