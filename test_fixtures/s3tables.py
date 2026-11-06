@@ -20,6 +20,12 @@ _BUCKET_ENV_VARS: dict[Bucket, str] = {
 }
 
 
+### CLASS SCOPING
+# These fixtures are class scoped. This allows for keeping the same catalog for all tests in
+# a class. If tests aren't in a class, then the fixtures are function scoped and a new catalog
+# is created for each test.
+
+
 @pytest.fixture(scope="class")
 def s3tables_namespace():
     return f"test_{uuid.uuid4().hex[:8]}"
@@ -31,11 +37,10 @@ def _make_catalog(bucket: Bucket, s3tables_namespace: str) -> Generator[Catalog]
     bucket_env_var = _BUCKET_ENV_VARS[bucket]
 
     catalog = pyiceberg_load_catalog(
-        "local",
+        bucket,
         **{
             "type": "rest",
-            "uri": os.environ["ICEBERG_URI"],
-            "warehouse": os.environ[bucket_env_var],
+            "uri": os.environ[bucket_env_var],
             "s3.endpoint": os.environ["AWS_ENDPOINT_URL"],
             "s3.path-style-access": "true",
             "s3.access-key-id": os.environ["AWS_ACCESS_KEY_ID"],
@@ -43,7 +48,10 @@ def _make_catalog(bucket: Bucket, s3tables_namespace: str) -> Generator[Catalog]
             "s3.region": os.environ.get("AWS_REGION", "eu-central-1"),
         },
     )
-    catalog.create_namespace(s3tables_namespace)
+    catalog.create_namespace(
+        s3tables_namespace,
+        properties={"location": f"s3://{os.environ[bucket_env_var]}/{s3tables_namespace}"},
+    )
 
     yield catalog
 
@@ -53,26 +61,29 @@ def _make_catalog(bucket: Bucket, s3tables_namespace: str) -> Generator[Catalog]
         catalog.drop_namespace(s3tables_namespace)
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 def raw_catalog(s3tables_namespace) -> Generator[Catalog]:
-    print("###########33 CREATING A RAW CATALOG")
     with _make_catalog("raw", s3tables_namespace) as (catalog):
         yield catalog
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 def sanitize_catalog(s3tables_namespace) -> Generator[Catalog]:
     with _make_catalog("sanitize", s3tables_namespace) as (catalog):
         yield catalog
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 def load_catalog(s3tables_namespace) -> Generator[Catalog]:
     with _make_catalog("load", s3tables_namespace) as (catalog):
         yield catalog
 
 
 def _create_s3tables_with_model(schema_file, catalog, s3tables_namespace) -> tuple[str, str]:
+    """
+    Create a table in a given catalog and namespace based on the
+    schema definition in models
+    """
     path = Path("models/s3tables/models/") / schema_file
     with open(path) as f:
         schema = json.load(f)
@@ -87,53 +98,53 @@ def _create_s3tables_with_model(schema_file, catalog, s3tables_namespace) -> tup
     return table_name, table_identifier
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 def s3tables_table_raw(s3tables_namespace, raw_catalog: Catalog):
     table_identifier: str
 
-    def _make(schema_file: str) -> tuple[str, str]:
+    def _make(schema_file: str) -> str:
         nonlocal table_identifier
 
         table_name, table_identifier = _create_s3tables_with_model(
             schema_file, raw_catalog, s3tables_namespace
         )
-        return table_name, table_identifier
+        return table_name
 
     yield _make
 
     raw_catalog.drop_table(table_identifier)
 
 
-@pytest.fixture
-def s3tables_table_sanitize(s3tables_namespace, raw_catalog: Catalog):
+@pytest.fixture(scope="class")
+def s3tables_table_sanitize(s3tables_namespace, sanitize_catalog: Catalog):
     table_identifier: str
 
-    def _make(schema_file: str) -> tuple[str, str]:
+    def _make(schema_file: str) -> str:
         nonlocal table_identifier
 
         table_name, table_identifier = _create_s3tables_with_model(
-            schema_file, raw_catalog, s3tables_namespace
+            schema_file, sanitize_catalog, s3tables_namespace
         )
-        return table_name, table_identifier
+        return table_name
 
     yield _make
 
-    raw_catalog.drop_table(table_identifier)
+    sanitize_catalog.drop_table(table_identifier)
 
 
-@pytest.fixture
-def s3tables_table_load(s3tables_namespace, raw_catalog: Catalog):
+@pytest.fixture(scope="class")
+def s3tables_table_load(s3tables_namespace, load_catalog: Catalog):
     table_identifier: str
 
-    def _make(schema_file: str) -> tuple[str, str]:
+    def _make(schema_file: str) -> str:
         nonlocal table_identifier
 
         table_name, table_identifier = _create_s3tables_with_model(
-            schema_file, raw_catalog, s3tables_namespace
+            schema_file, load_catalog, s3tables_namespace
         )
 
-        return table_name, table_identifier
+        return table_name
 
     yield _make
 
-    raw_catalog.drop_table(table_identifier)
+    load_catalog.drop_table(table_identifier)
