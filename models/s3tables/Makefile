@@ -1,9 +1,11 @@
+.DEFAULT_GOAL := help
+
 .PHONY: upgrade-tables
-upgrade-tables: # Upgrade the s3tables from the models file
+upgrade-tables: ## Upgrade the s3tables from the models file
 	./s3tables.sh upgrade
 
 .PHONY: upgrade-check
-upgrade-check: # Check the state of the s3tables, whether they already exist
+upgrade-check: ## Check the state of the s3tables, whether they already exist
 	./s3tables.sh check
 
 
