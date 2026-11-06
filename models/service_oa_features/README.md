@@ -44,7 +44,7 @@ To run `-prod` targets (like `make db-upgrade-prod`), first open a port forwardi
 and leave it running:
 
 ```bash
-summon -p ssm -f secrets.yml -e services-dev make port-forwarding
+summon -p ssm -f secrets.yaml -e services-dev make port-forwarding
 ```
 
 Now in another terminal you can call the alembic operations:
