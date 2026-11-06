@@ -1,10 +1,10 @@
-from models.service_oa_features.models.ch_meteoschweiz.local_forecast.point import (
-    MeteoschweizLocalForecastingPointMeta,
+from models.service_oa_features.models.org_meteoschweiz.tbl_ogd_local_forecasting.point import (
+    OGDLocalForecastingPointMeta,
 )
-from models.service_oa_features.models.ch_meteoschweiz.local_forecast.tre200px import (
-    ChMeteoschweizLocalForecastTre200px,
+from models.service_oa_features.models.org_meteoschweiz.tbl_ogd_local_forecasting.tre200px import (
+    OGDLocalForecastingTre200px,
 )
 
 from .base import Base
 
-__all__ = ["Base", "ChMeteoschweizLocalForecastTre200px", "MeteoschweizLocalForecastingPointMeta"]
+__all__ = ["Base", "OGDLocalForecastingPointMeta", "OGDLocalForecastingTre200px"]

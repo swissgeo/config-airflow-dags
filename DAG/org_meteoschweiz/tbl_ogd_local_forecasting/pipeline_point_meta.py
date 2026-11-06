@@ -109,7 +109,7 @@ def export_data_to_features() -> None:
 
     write_to_postgres(
         clean_geometry,
-        "ch_meteoschweiz_local_forecast_point",
+        "tbl_ogd-local-forecasting-point-meta",
     )
 
 

@@ -1,5 +1,5 @@
 {
-  "tableBucketARN": "$SANITIZE_TABLE_BUCKET_ARN",
+  "tableBucketARN": "$LOAD_TABLE_BUCKET_ARN",
   "namespace": "ch_meteoschweiz",
   "name": "local_forecast_points",
   "format": "ICEBERG",
