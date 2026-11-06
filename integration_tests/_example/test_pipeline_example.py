@@ -86,7 +86,7 @@ def test_pipeline_example_db_writing(features_database):
     example_dag.write_to_db(data)
 
     with features_database.cursor(row_factory=dict_row) as cur:
-        cur.execute("SELECT * FROM ch_meteoschweiz_local_forecast_tre200px")
+        cur.execute('SELECT * FROM "tbl_ogd-local-forecasting-tre200px"')
         rows = cur.fetchall()
 
     assert data.to_pylist() == rows
@@ -98,7 +98,7 @@ def test_pipeline_example_s3tables_writing(s3tables_table_raw, raw_catalog, s3ta
         {"point_id": [1], "point_type_id": [2], "Date": ["202611021800"], "tre200px": [6]}
     )
 
-    table_name, _ = s3tables_table_raw("ch_meteoschweiz/local_forecast/raw/tre200px.json")
+    table_name = s3tables_table_raw("org_meteoschweiz/tbl_ogd_local_forecasting/raw/tre200px.json")
 
     example_dag.task_write_to_s3tables(data, s3tables_namespace, table_name)
 
@@ -124,7 +124,7 @@ def test_pipeline_example_s3tables_writing_invalid_schema(
         }
     )
 
-    table_name, _ = s3tables_table_raw("ch_meteoschweiz/local_forecast/raw/tre200px.json")
+    table_name = s3tables_table_raw("org_meteoschweiz/tbl_ogd_local_forecasting/raw/tre200px.json")
 
     with pytest.raises(WriteToS3TablesError):
         example_dag.task_write_to_s3tables(data, s3tables_namespace, table_name)

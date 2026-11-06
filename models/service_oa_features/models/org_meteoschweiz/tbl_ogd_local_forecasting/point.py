@@ -5,10 +5,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 from models.service_oa_features.models.base import Base
 
 
-class MeteoschweizLocalForecastingPointMeta(Base):
+class OGDLocalForecastingPointMeta(Base):
     """Table for meteoschweiz_local_forecasting data"""
 
-    __tablename__ = "ch_meteoschweiz_local_forecast_point"
+    __tablename__ = "tbl_ogd-local-forecasting-point-meta"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 

@@ -2,7 +2,7 @@ from pathlib import Path
 
 from psycopg.rows import dict_row
 
-from DAG.ch_meteoschweiz.local_forecast import pipeline_points
+from DAG.org_meteoschweiz.tbl_ogd_local_forecasting import pipeline_point_meta
 
 
 class TestPointPipeline:
@@ -23,9 +23,11 @@ class TestPointPipeline:
     ):
         s3, bucket_name = landing_zone
 
-        table_name = s3tables_table_raw("ch_meteoschweiz/local_forecast/raw/points.json")
+        table_name = s3tables_table_raw(
+            "org_meteoschweiz/tbl_ogd_local_forecasting/raw/points.json"
+        )
 
-        monkeypatch.setattr(pipeline_points, "NAMESPACE", s3tables_namespace)
+        monkeypatch.setattr(pipeline_point_meta, "NAMESPACE", s3tables_namespace)
         monkeypatch.setenv("LANDING_ZONE_BUCKET", bucket_name)
 
         with (
@@ -37,7 +39,7 @@ class TestPointPipeline:
                 Body=f.read(),
             )
 
-        pipeline_points.download_and_store_raw("data.csv")
+        pipeline_point_meta.download_and_store_raw("data.csv")
 
         identifier = f"{s3tables_namespace}.{table_name}"
         table = raw_catalog.load_table(identifier)
@@ -100,12 +102,12 @@ class TestPointPipeline:
         self, sanitize_catalog, s3tables_table_sanitize, s3tables_namespace, monkeypatch
     ) -> None:
         sanitize_table_name = s3tables_table_sanitize(
-            "ch_meteoschweiz/local_forecast/sanitize/points.json"
+            "org_meteoschweiz/tbl_ogd_local_forecasting/sanitize/points.json"
         )
 
-        monkeypatch.setattr(pipeline_points, "NAMESPACE", s3tables_namespace)
+        monkeypatch.setattr(pipeline_point_meta, "NAMESPACE", s3tables_namespace)
 
-        pipeline_points.sanitize_data()
+        pipeline_point_meta.sanitize_data()
 
         identifier = f"{s3tables_namespace}.{sanitize_table_name}"
         table = sanitize_catalog.load_table(identifier)
@@ -161,11 +163,13 @@ class TestPointPipeline:
     def test_export_data(
         self, load_catalog, s3tables_table_load, s3tables_namespace, features_database, monkeypatch
     ):
-        load_table_name = s3tables_table_load("ch_meteoschweiz/local_forecast/load/points.json")
+        load_table_name = s3tables_table_load(
+            "org_meteoschweiz/tbl_ogd_local_forecasting/load/points.json"
+        )
 
-        monkeypatch.setattr(pipeline_points, "NAMESPACE", s3tables_namespace)
+        monkeypatch.setattr(pipeline_point_meta, "NAMESPACE", s3tables_namespace)
 
-        pipeline_points.export_data_to_features()
+        pipeline_point_meta.export_data_to_features()
 
         identifier = f"{s3tables_namespace}.{load_table_name}"
         table = load_catalog.load_table(identifier)
@@ -229,7 +233,7 @@ class TestPointPipeline:
                     point_type_en,
                     point_height_masl,
                     ST_asText(geometry) as geometry
-                FROM ch_meteoschweiz_local_forecast_point
+                FROM "tbl_ogd-local-forecasting-point-meta"
                 WHERE point_id IN (1, 611300, 494)
             """)
             rows = cur.fetchall()
