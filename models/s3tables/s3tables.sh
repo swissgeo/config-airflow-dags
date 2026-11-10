@@ -48,7 +48,7 @@ upgrade() {
 
   # Testing if the table already exists
   local count
-  count=$(_table_exists() "$tmp_file") || return "$?"
+  count=$(_table_exists "$tmp_file") || return "$?"
 
   if (( count > 0 )); then
     # do nothing
@@ -72,7 +72,7 @@ check() {
   tmp_file="$(_tmp_file "$file")"
 
   local count
-  count=$(_table_exists() "$tmp_file") || return "$?"
+  count=$(_table_exists "$tmp_file") || return "$?"
 
   if (( count > 0 )); then
     printf '\033[32mTable exists: %s\033[0m\n' "$file"

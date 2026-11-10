@@ -22,9 +22,8 @@ def _load_local_iceberg_catalog(table_bucket_arn: str) -> Catalog:
     """Connect to a iceberg instance and return a catalog"""
 
     iceberg_props = {
-        "uri": os.environ["ICEBERG_URI"],
+        "uri": table_bucket_arn,
         "type": "rest",
-        "warehouse": table_bucket_arn,
         "s3.endpoint": os.environ["AWS_ENDPOINT_URL"],
         "s3.path-style-access": "true",
         "s3.access-key-id": os.environ["AWS_ACCESS_KEY_ID"],

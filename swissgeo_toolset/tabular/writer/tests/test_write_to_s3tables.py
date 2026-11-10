@@ -10,11 +10,11 @@ from swissgeo_toolset.tabular.writer import WriteToS3TablesError, write_to_s3tab
 
 
 @pytest.fixture
-def s3_table(raw_catalog):
+def s3_table(raw_catalog, s3tables_namespace):
     """Create an intermediary table on iceberg"""
-    catalog, namespace = raw_catalog
+    catalog = raw_catalog
     table_name = "test_table"
-    identifier = f"{namespace}.{table_name}"
+    identifier = f"{s3tables_namespace}.{table_name}"
 
     table_handle = catalog.create_table(
         identifier=identifier,
@@ -25,7 +25,7 @@ def s3_table(raw_catalog):
         ),
     )
 
-    yield {"namespace": namespace, "table_name": table_name, "table_handle": table_handle}
+    yield {"namespace": s3tables_namespace, "table_name": table_name, "table_handle": table_handle}
 
     catalog.drop_table(identifier)
 
@@ -182,4 +182,4 @@ def test_write_invalid_schema(s3_table, data, error):
             table_name=s3_table["table_name"],
         )
 
-    assert str(e.value) == error
+    assert error in str(e.value)

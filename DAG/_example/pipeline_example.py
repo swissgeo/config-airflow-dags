@@ -52,7 +52,7 @@ def write_to_db(data: pa.Table) -> None:
     Not to be executed on airflow. I will probably remove this once we have
     a real local_forecast DAG
     """
-    write_to_postgres(data, "ch_meteoschweiz_local_forecast_tre200px")
+    write_to_postgres(data, "tbl_ogd-local-forecasting-tre200px")
 
 
 def task_write_to_s3tables(data: pa.Table, namespace: str, table_name: str) -> None:

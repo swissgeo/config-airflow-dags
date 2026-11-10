@@ -21,15 +21,19 @@ services:
       - AWS_ACCESS_KEY_ID=motoadmin
       - AWS_SECRET_ACCESS_KEY=motoadmin
       - AWS_DEFAULT_REGION=eu-central-1
-    entrypoint: >
-      aws --endpoint-url=http://moto-server:5000 s3 mb s3://raw || true;
-    restart: "no"
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - |
+        for bucket in raw sanitize load; do
+          aws --endpoint-url=http://moto-server:5000 s3 mb "s3://$$bucket"
+        done
 
-  iceberg-rest:
+  iceberg-rest-raw: &iceberg-rest
     image: tabulario/iceberg-rest
     ports:
       - "8181:8181"
-    environment:
+    environment: &iceberg-rest-environment
       CATALOG_WAREHOUSE: s3://raw/
       CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
       CATALOG_S3_ENDPOINT: http://moto-server:5000
@@ -40,6 +44,22 @@ services:
     depends_on:
       moto-init:
         condition: service_completed_successfully
+
+  iceberg-rest-sanitize:
+    <<: *iceberg-rest
+    ports:
+      - "8182:8181"
+    environment:
+      <<: *iceberg-rest-environment
+      CATALOG_WAREHOUSE: s3://sanitize/
+
+  iceberg-rest-load:
+    <<: *iceberg-rest
+    ports:
+      - "8183:8181"
+    environment:
+      <<: *iceberg-rest-environment
+      CATALOG_WAREHOUSE: s3://load/
 
   postgres:
     image: postgis/postgis:18-3.6-alpine

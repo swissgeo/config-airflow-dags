@@ -26,14 +26,13 @@ Following are the env variables that are required to be set:
 | variable                  | Type               | scope                    | description                                                                                  |
 | ------------------------- | ------------------ | ------------------------ | -------------------------------------------------------------------------------------------- |
 | ICEBERG_BACKEND           | local \| s3tables  | global                   | Whether to use the local setup or s3tables                                                   |
-| ICEBERG_URI               | URL                | testing setup            | The URL to iceberg. _local only_                                                             |
 | AWS_ACCESS_KEY_ID         | string             | testing setup            | Key for accessing the local iceberg instance                                                 |
 | AWS_SECRET_ACCESS_KEY     | string             | testing setup            | Access key for the local iceberg instance                                                    |
 | AWS_ENDPOINT_URL          | URL                | testing setup            | URL to the local moto server for testing                                                     |
 | AWS_REGION                | aws region(string) | global                   | The region this code is running in. Used by the test setup as well as the s3 file downloader |
-| RAW_TABLE_BUCKET_ARN      | ARN (string)       | s3tables reading/writing | ARN to the s3table bucket for raw data                                                       |
-| SANITIZE_TABLE_BUCKET_ARN | ARN (string)       | s3tables reading/writing | ARN to the s3table bucket for sanitize data                                                  |
-| LOAD_TABLE_BUCKET_ARN     | ARN (string)       | s3tables reading/writing | ARN to the s3table bucket for load data                                                      |
+| RAW_TABLE_BUCKET_ARN      | ARN (string)       | s3tables reading/writing | ARN to the s3table bucket for raw data (or URL in case of local testing)                     |
+| SANITIZE_TABLE_BUCKET_ARN | ARN (string)       | s3tables reading/writing | ARN to the s3table bucket for sanitize data (or URL in case of local testing)                |
+| LOAD_TABLE_BUCKET_ARN     | ARN (string)       | s3tables reading/writing | ARN to the s3table bucket for load data (or URL in case of local testing)                    |
 | LANDING_ZONE_BUCKET       | string             | file downloader          | Name of the s3table bucket for landing zone data                                             |
 | FEATURES_DB_ENDPOINT      | string             | postgres db writer       | URL to the service-oa-features database                                                      |
 | FEATURES_DB_PORT          | int                | postgres db writer       | Port to the service-oa-features database                                                     |
