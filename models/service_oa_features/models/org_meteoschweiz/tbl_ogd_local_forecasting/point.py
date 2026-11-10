@@ -23,7 +23,6 @@ class OGDLocalForecastingPointMeta(Base):
     point_type_en: Mapped[str] = mapped_column(String(64))
     point_height_masl: Mapped[float | None] = mapped_column(Float, nullable=True)
     geometry: Mapped[Geometry | None] = mapped_column(
-        # unsure whether srid=4326 is correct here
-        Geometry("Geometry", srid=4326),
+        Geometry("Geometry", srid=21781),
         nullable=True,
     )
