@@ -35,8 +35,7 @@ class ForecastParameterBase(Base):
     point_name: Mapped[str | None] = mapped_column(String(256), nullable=True)
     point_height_masl: Mapped[float | None] = mapped_column(Float, nullable=True)
     geometry: Mapped[Geometry | None] = mapped_column(
-        # unsure whether srid=4326 is correct here
-        Geometry("Geometry", srid=4326),
+        Geometry("Geometry", srid=2056),
         nullable=True,
     )
 
