@@ -21,6 +21,9 @@ logger = logging.getLogger(__name__)
 
 default_args = {"owner": "airflow", "depends_on_past": False, "retries": 0}
 
+csv_encoding_default = "latin-1"
+csv_delimiter_default = ";"
+csv_quote_char_default = '"'
 
 dag = DAG(
     "ch_meteoschweiz-local_forecast-points",
@@ -31,14 +34,22 @@ dag = DAG(
     params=ParamsDict(
         {
             "file_key": Param(type="string", default=""),
+            "csv_encoding": Param(type="string", default=csv_encoding_default),
+            "csv_delimiter": Param(type="string", default=csv_delimiter_default),
+            "csv_quote_char": Param(type="string", default=csv_quote_char_default),
         }
     ),
 )
 
 
-def download_and_store_raw(file_key: str) -> None:
+def download_and_store_raw(
+    file_key: str,
+    encoding: str = csv_encoding_default,
+    delimiter: str = csv_delimiter_default,
+    quote_char: str = csv_quote_char_default,
+) -> None:
     with download_from_landingzone(file_key=file_key) as file:
-        df = parse_csv(file, encoding="latin-1", delimiter=";", quote_char='"')
+        df = parse_csv(file, encoding=encoding, delimiter=delimiter, quote_char=quote_char)
 
     df = lowercase_column_names(df)
     write_to_s3tables(df, "raw", NAMESPACE, "local_forecast_points")
@@ -120,6 +131,9 @@ download_and_store_raw_task = PythonOperator(
     dag=dag,
     op_kwargs={
         "file_key": "{{ params.file_key }}",
+        "encoding": "{{ params.csv_encoding }}",
+        "delimiter": "{{ params.csv_delimiter }}",
+        "quote_char": "{{ params.csv_quote_char }}",
     },
 )
 
