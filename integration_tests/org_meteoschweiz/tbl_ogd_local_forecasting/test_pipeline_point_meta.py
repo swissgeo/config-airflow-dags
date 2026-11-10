@@ -39,7 +39,14 @@ class TestPointPipeline:
                 Body=f.read(),
             )
 
-        pipeline_point_meta.download_and_store_raw("data.csv")
+        task = pipeline_point_meta.download_and_store_raw_task
+        monkeypatch.setattr(task, "encoding", pipeline_point_meta.csv_encoding_default)
+        monkeypatch.setattr(task, "delimiter", pipeline_point_meta.csv_delimiter_default)
+        monkeypatch.setattr(task, "quote_char", pipeline_point_meta.csv_quote_char_default)
+        monkeypatch.setattr(task, "namespace", s3tables_namespace)
+        monkeypatch.setattr(task, "file_key", "data.csv")
+
+        task.execute(context={})
 
         identifier = f"{s3tables_namespace}.{table_name}"
         table = raw_catalog.load_table(identifier)
