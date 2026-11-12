@@ -1,7 +1,7 @@
 {
   "tableBucketARN": "$LOAD_TABLE_BUCKET_ARN",
-  "namespace": "ch_meteoschweiz",
-  "name": "local_forecast_points",
+  "namespace": "org_meteoschweiz",
+  "name": "tbl_ogd_local_forecasting_point_meta",
   "format": "ICEBERG",
   "metadata": {
     "iceberg": {

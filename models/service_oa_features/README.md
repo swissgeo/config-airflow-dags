@@ -7,7 +7,7 @@ This is the setup for provisioning the tables in the postgres database for servi
 ### `./models/`
 
 Here we store the model definitions for every table that is supposed to be created in service-oa-features.
-The models are supposed to be segmented by <provider_name>/<dataset>, e.g. `ch_meteoschweiz/local_forecast`.
+The models are supposed to be segmented by <provider_name>/<dataset>, e.g. `org_meteoschweiz/local_forecast`.
 Once a new model is added, it needs to be imported by `models/__init__.py`
 
 ### `./migrations`

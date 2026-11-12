@@ -50,7 +50,7 @@ def test_pipeline_example(raw_catalog, landing_zone, monkeypatch, s3tables_names
 
 def test_pipeline_example_db_writing(features_database):
     # Create a PyArrow table matching the SQLAlchemy model
-    # (models/service_oa_features/models/ch_meteoschweiz/local_forecast/tre200px.py)
+    # (models/service_oa_features/models/org_meteoschweiz/local_forecast/tre200px.py)
     data = pa.table(
         {
             "value": [12.34],

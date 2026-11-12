@@ -15,7 +15,7 @@ from swissgeo_toolset.tabular.converter import (
 from swissgeo_toolset.tabular.reader import read_from_s3tables
 from swissgeo_toolset.tabular.writer import write_to_postgres, write_to_s3tables
 
-NAMESPACE = "ch_meteoschweiz"
+NAMESPACE = "org_meteoschweiz"
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ csv_delimiter_default = ";"
 csv_quote_char_default = '"'
 
 dag = DAG(
-    "ch_meteoschweiz-local_forecast-points",
+    "tbl_ogd-local_forecasting-point-meta",
     default_args=default_args,
     description="Local Forecast Point Pipeline",
     schedule=None,
@@ -49,7 +49,7 @@ def sanitize_data() -> None:
     * Simplify some data types of columns; we don't need that much precision
     * Drop unused WGS84 Columns
     """
-    raw_data = read_from_s3tables("raw", NAMESPACE, "local_forecast_points")
+    raw_data = read_from_s3tables("raw", NAMESPACE, "tbl_ogd_local_forecasting_point_meta")
 
     # simplifying the data types from long to int and double to float
     # as we're clearly not in need of that length
@@ -76,7 +76,7 @@ def sanitize_data() -> None:
         without_wgs84,
         "sanitize",
         NAMESPACE,
-        "local_forecast_points",
+        "tbl_ogd_local_forecasting_point_meta",
     )
 
 
@@ -86,7 +86,9 @@ def export_data_to_features() -> None:
 
     * Convert the geometry information to a WKT geometry
     """
-    sanitized_data = read_from_s3tables("sanitize", NAMESPACE, "local_forecast_points")
+    sanitized_data = read_from_s3tables(
+        "sanitize", NAMESPACE, "tbl_ogd_local_forecasting_point_meta"
+    )
 
     with_geometry = add_geometry_column(
         sanitized_data,
@@ -102,7 +104,7 @@ def export_data_to_features() -> None:
         clean_geometry,
         "load",
         NAMESPACE,
-        "local_forecast_points",
+        "tbl_ogd_local_forecasting_point_meta",
     )
 
     write_to_postgres(
@@ -119,7 +121,7 @@ download_and_store_raw_task = CsvFromLandingzoneToRawOperator(
     delimiter="{{ params.csv_delimiter }}",
     quote_char="{{ params.csv_quote_char }}",
     namespace=NAMESPACE,
-    table_name="local_forecast_points",
+    table_name="tbl_ogd_local_forecasting_point_meta",
     dag=dag,
 )
 

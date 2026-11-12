@@ -16,7 +16,7 @@ from swissgeo_toolset.tabular.converter import (
 from swissgeo_toolset.tabular.reader import read_from_s3tables
 from swissgeo_toolset.tabular.writer import write_to_postgres, write_to_s3tables
 
-NAMESPACE = "ch_meteoschweiz"
+NAMESPACE = "org_meteoschweiz"
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ csv_delimiter_default = ";"
 csv_quote_char_default = '"'
 
 dag = DAG(
-    "ch_meteoschweiz-local_forecast-parameter",
+    "tbl_ogd-local-forecasting-parameter-data",
     default_args=default_args,
     description="Local Forecast Parameter Pipeline (Parametrizable)",
     schedule=None,
@@ -108,7 +108,7 @@ sanitize_data_task = PythonOperator(
     python_callable=sanitize_data,
     dag=dag,
     op_kwargs={
-        "table_name": "local_forecasting_{{params.parameter_name}}",
+        "table_name": "tbl_ogd_local_forecasting_{{params.parameter_name}}",
         "parameter_name": "{{params.parameter_name}}",
     },
 )
@@ -119,12 +119,18 @@ combine_and_export_data_task = PythonOperator(
     dag=dag,
     op_kwargs={
 <<<<<<< HEAD
+<<<<<<< HEAD
         "table_name": "local_forecasting_{{params.parameter_name}}",
 ||||||| parent of 176c5ab (fixup! GPS-1007: Implement parameter pipeline for meteoschweiz)
         "table_name": "tbl_ogd_local_forecasting_{{params.parameter_name}}",
 =======
         "s3tables_table_name": "tbl_ogd_local_forecasting_{{params.parameter_name}}",
 >>>>>>> 176c5ab (fixup! GPS-1007: Implement parameter pipeline for meteoschweiz)
+||||||| parent of 245ebc9 (GPS-1007: Properly name the forecasting point tables in s3)
+        "table_name": "local_forecasting_{{params.parameter_name}}",
+=======
+        "table_name": "tbl_ogd_local_forecasting_{{params.parameter_name}}",
+>>>>>>> 245ebc9 (GPS-1007: Properly name the forecasting point tables in s3)
         "parameter_name": "{{params.parameter_name}}",
         "postgres_table_name": "tbl_ogd-local-forecasting-{{params.parameter_name}}",
     },
