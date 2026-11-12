@@ -15,6 +15,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "alembic>=1.20.1",
+    "faker>=37.0.0",
     "apache-airflow>=3.4.0b2",   # remember to keep in sync with Dockerfile
     "geoalchemy2>=0.20.0",
     "ipdb>=0.13.13",

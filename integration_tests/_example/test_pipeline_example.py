@@ -95,7 +95,7 @@ def test_pipeline_example_db_writing(features_database):
 def test_pipeline_example_s3tables_writing(s3tables_table_raw, raw_catalog, s3tables_namespace):
     """Test the writing to a pre-defined s3tables table"""
     data = pa.table(
-        {"point_id": [1], "point_type_id": [2], "Date": ["202611021800"], "tre200px": [6]}
+        {"point_id": [1], "point_type_id": [2], "date": ["202611021800"], "tre200px": [6]}
     )
 
     table_name = s3tables_table_raw("org_meteoschweiz/tbl_ogd_local_forecasting/raw/tre200px.json")
@@ -118,7 +118,7 @@ def test_pipeline_example_s3tables_writing_invalid_schema(
         {
             "point_id": [1],
             "point_type_id": [2],
-            "Date": ["202611021800"],
+            "date": ["202611021800"],
             "tre200px": [6],
             "additional_field": ["notwanted"],
         }
