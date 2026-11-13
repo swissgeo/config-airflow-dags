@@ -118,19 +118,7 @@ combine_and_export_data_task = PythonOperator(
     python_callable=combine_and_export_data,
     dag=dag,
     op_kwargs={
-<<<<<<< HEAD
-<<<<<<< HEAD
-        "table_name": "local_forecasting_{{params.parameter_name}}",
-||||||| parent of 176c5ab (fixup! GPS-1007: Implement parameter pipeline for meteoschweiz)
-        "table_name": "tbl_ogd_local_forecasting_{{params.parameter_name}}",
-=======
         "s3tables_table_name": "tbl_ogd_local_forecasting_{{params.parameter_name}}",
->>>>>>> 176c5ab (fixup! GPS-1007: Implement parameter pipeline for meteoschweiz)
-||||||| parent of 245ebc9 (GPS-1007: Properly name the forecasting point tables in s3)
-        "table_name": "local_forecasting_{{params.parameter_name}}",
-=======
-        "table_name": "tbl_ogd_local_forecasting_{{params.parameter_name}}",
->>>>>>> 245ebc9 (GPS-1007: Properly name the forecasting point tables in s3)
         "parameter_name": "{{params.parameter_name}}",
         "postgres_table_name": "tbl_ogd-local-forecasting-{{params.parameter_name}}",
     },
