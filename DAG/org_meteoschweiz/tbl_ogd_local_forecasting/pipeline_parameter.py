@@ -98,7 +98,7 @@ def combine_and_export_data(
 
     parameter_meta = with_feature_id
     for key, value in fetch_parameter_data(parameter_meta_url, parameter_name).items():
-        parameter_meta = add_column(parameter_meta, key, "string", lambda _, value=value: value)
+        parameter_meta = add_column(parameter_meta, key, "string", static_value=value)
 
     write_to_s3tables(parameter_meta, "load", NAMESPACE, s3tables_table_name)
 
