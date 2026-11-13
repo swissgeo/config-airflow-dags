@@ -1,0 +1,33 @@
+{
+  "tableBucketARN": "$RAW_TABLE_BUCKET_ARN",
+  "namespace": "org_meteoschweiz",
+  "name": "tbl_ogd_local_forecasting_nprohihs",
+  "format": "ICEBERG",
+  "metadata": {
+    "iceberg": {
+      "schema": {
+        "fields": [
+          {
+            "id": 1,
+            "name": "point_id",
+            "type": "int",
+            "required": true
+          },
+          {
+            "id": 2,
+            "name": "point_type_id",
+            "type": "int",
+            "required": true
+          },
+          { "id": 3, "name": "date", "type": "string", "required": true },
+          {
+            "id": 4,
+            "name": "nprohihs",
+            "type": "float",
+            "required": true
+          }
+        ]
+      }
+    }
+  }
+}

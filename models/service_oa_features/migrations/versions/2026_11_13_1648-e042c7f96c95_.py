@@ -1,8 +1,8 @@
-"""Fix projection system in tre200px
+"""
 
-Revision ID: d14559f0834f
-Revises: 9295c67861da
-Create Date: 2026-11-10 15:09:12.839188
+Revision ID: e042c7f96c95
+Revises: 97e74a33e087
+Create Date: 2026-11-13 16:48:32.944108
 
 """
 
@@ -12,8 +12,8 @@ from alembic import op
 from geoalchemy2 import Geometry
 
 # revision identifiers, used by Alembic.
-revision: str = "d14559f0834f"
-down_revision: str | Sequence[str] | None = "9295c67861da"
+revision: str = "e042c7f96c95"
+down_revision: str | Sequence[str] | None = "97e74a33e087"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
