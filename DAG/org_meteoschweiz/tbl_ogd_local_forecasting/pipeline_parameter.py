@@ -75,6 +75,13 @@ def sanitize_data(table_name: str, parameter_name: str) -> None:
 def combine_and_export_data(
     s3tables_table_name: str, postgres_table_name: str, parameter_name: str, parameter_meta_url: str
 ) -> None:
+    """Combine and export data
+
+
+    Combine the parameter data with the point data (if it exists) from the corresponding load table.
+    Enrich the rows with the parameter meta data that is fetched from service-stac.
+    Export it to postgres' service-oa-features
+    """
     point_data = read_from_s3tables("load", NAMESPACE, "tbl_ogd_local_forecasting_point_meta")
     sanitize_data = read_from_s3tables("sanitize", NAMESPACE, s3tables_table_name)
 
