@@ -228,7 +228,7 @@ class TestParameterPipeline:
         assert test_rows[501]["parameter_shortname"] == "tre200px"
         assert (
             test_rows[501]["parameter_description_de"]
-            == "Lufttemperatur 2 m über Boden; Tagesmaximum 00:00 - 24:00 Lokalzeit"
+            == "Lufttemperatur 2 m über Boden; Tagesmaximum 00:00 - 24:00"
         )
         assert test_rows[501]["parameter_group_de"] == "Temperatur"
         assert test_rows[501]["parameter_granularity"] == "D"
@@ -262,8 +262,8 @@ class TestParameterPipeline:
             else:
                 assert test_rows[501][key] == point_data["501_3"][key]
 
-        for key in _fake_parameter_data(None, None):
-            assert test_rows[501][key] == point_data["501_3"][key]
+        for key, value in _fake_parameter_data(None, None).items():
+            assert str(test_rows[501][key]) == value
 
 
 def _generate_fake_point_data(

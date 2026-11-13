@@ -2,6 +2,8 @@ import csv
 import io
 import logging
 
+import pyarrow as pa
+import pyarrow.compute as pc
 import requests
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
@@ -90,13 +92,21 @@ def combine_and_export_data(
 
     joined_data = join_tables(sanitize_data, point_data, ["point_id", "point_type_id"], "inner")
 
-    def feature_id_callback(row: dict) -> str:
-        datetime = row["datetime"].strftime("%Y%m%d%H%M")
-        return f"{row['point_id']}.{row['point_type_id']}.{parameter_name}.{datetime}"
-
-    with_feature_id = add_column(joined_data, "feature_id", "string", feature_id_callback)
+    with_feature_id = add_column(
+        joined_data,
+        "feature_id",
+        "string",
+        value_callback=lambda t: pc.binary_join_element_wise(  # ty: ignore[unresolved-attribute]
+            pc.cast(t["point_id"], pa.string()),
+            pc.cast(t["point_type_id"], pa.string()),
+            parameter_name,
+            pc.strftime(t["datetime"], format="%Y%m%d%H%M"),  # ty: ignore[unresolved-attribute]
+            ".",
+        ),
+    )
 
     parameter_meta = with_feature_id
+
     for key, value in fetch_parameter_data(parameter_meta_url, parameter_name).items():
         parameter_meta = add_column(parameter_meta, key, "string", static_value=value)
 
@@ -145,6 +155,8 @@ download_and_store_raw_task >> sanitize_data_task >> combine_and_export_data_tas
 
 def fetch_parameter_data(url: str, parameter: str) -> dict:
     """Fetching parameter data from service-stac"""
+
+    logger.info("Fetching parameter data from %s", url)
     response = requests.get(url, timeout=10)
     response.raise_for_status()
 
