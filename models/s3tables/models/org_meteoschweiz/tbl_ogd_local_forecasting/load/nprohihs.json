@@ -1,0 +1,176 @@
+{
+  "tableBucketARN": "$LOAD_TABLE_BUCKET_ARN",
+  "namespace": "org_meteoschweiz",
+  "name": "tbl_ogd_local_forecasting_nprohihs",
+  "format": "ICEBERG",
+  "metadata": {
+    "iceberg": {
+      "schema": {
+        "fields": [
+          {
+            "id": 1,
+            "name": "point_id",
+            "type": "int",
+            "required": true
+          },
+          {
+            "id": 2,
+            "name": "point_type_id",
+            "type": "int",
+            "required": true
+          },
+          {
+            "id": 3,
+            "name": "datetime",
+            "type": "timestamptz",
+            "required": true
+          },
+          {
+            "id": 4,
+            "name": "value",
+            "type": "float",
+            "required": true
+          },
+          {
+            "id": 5,
+            "name": "feature_id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "id": 6,
+            "name": "station_abbr",
+            "type": "string",
+            "required": true
+          },
+          {
+            "id": 7,
+            "name": "postal_code",
+            "type": "int",
+            "required": false
+          },
+          {
+            "id": 8,
+            "name": "point_name",
+            "type": "string",
+            "required": true
+          },
+          {
+            "id": 9,
+            "name": "point_type_de",
+            "type": "string",
+            "required": true
+          },
+          {
+            "id": 10,
+            "name": "point_type_fr",
+            "type": "string",
+            "required": true
+          },
+          {
+            "id": 11,
+            "name": "point_type_it",
+            "type": "string",
+            "required": true
+          },
+          {
+            "id": 12,
+            "name": "point_type_en",
+            "type": "string",
+            "required": true
+          },
+          {
+            "id": 13,
+            "name": "point_height_masl",
+            "type": "float",
+            "required": true
+          },
+          {
+            "id": 14,
+            "name": "geometry",
+            "type": "string",
+            "required": true
+          },
+          {
+            "id": 15,
+            "name": "parameter_shortname",
+            "type": "string",
+            "required": false
+          },
+          {
+            "id": 16,
+            "name": "parameter_description_de",
+            "type": "string",
+            "required": false
+          },
+          {
+            "id": 17,
+            "name": "parameter_description_fr",
+            "type": "string",
+            "required": false
+          },
+          {
+            "id": 18,
+            "name": "parameter_description_it",
+            "type": "string",
+            "required": false
+          },
+          {
+            "id": 19,
+            "name": "parameter_description_en",
+            "type": "string",
+            "required": false
+          },
+          {
+            "id": 20,
+            "name": "parameter_group_de",
+            "type": "string",
+            "required": false
+          },
+          {
+            "id": 21,
+            "name": "parameter_group_fr",
+            "type": "string",
+            "required": false
+          },
+          {
+            "id": 22,
+            "name": "parameter_group_it",
+            "type": "string",
+            "required": false
+          },
+          {
+            "id": 23,
+            "name": "parameter_group_en",
+            "type": "string",
+            "required": false
+          },
+          {
+            "id": 24,
+            "name": "parameter_granularity",
+            "type": "string",
+            "required": false
+          },
+          {
+            "id": 25,
+            "name": "parameter_decimals",
+            "type": "int",
+            "required": false
+          },
+          {
+            "id": 26,
+            "name": "parameter_datatype",
+            "type": "string",
+            "required": false
+          },
+          {
+            "id": 27,
+            "name": "parameter_unit",
+            "type": "string",
+            "required": false
+          }
+        ]
+      }
+    }
+  }
+}
