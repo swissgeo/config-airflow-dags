@@ -98,7 +98,7 @@ def test_pipeline_example_s3tables_writing(s3tables_table_raw, raw_catalog, s3ta
         {"point_id": [1], "point_type_id": [2], "date": ["202611021800"], "tre200px": [6]}
     )
 
-    table_name = s3tables_table_raw("org_meteoschweiz/tbl_ogd_local_forecasting/raw/tre200px.json")
+    table_name = s3tables_table_raw("org_meteoschweiz/dat_ogd_local_forecasting/raw/tre200px.json")
 
     example_dag.task_write_to_s3tables(data, s3tables_namespace, table_name)
 
@@ -124,7 +124,7 @@ def test_pipeline_example_s3tables_writing_invalid_schema(
         }
     )
 
-    table_name = s3tables_table_raw("org_meteoschweiz/tbl_ogd_local_forecasting/raw/tre200px.json")
+    table_name = s3tables_table_raw("org_meteoschweiz/dat_ogd_local_forecasting/raw/tre200px.json")
 
     with pytest.raises(WriteToS3TablesError):
         example_dag.task_write_to_s3tables(data, s3tables_namespace, table_name)

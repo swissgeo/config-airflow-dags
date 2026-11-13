@@ -34,7 +34,7 @@ class TestParameterPipeline:
         s3, bucket_name = landing_zone
 
         table_name = s3tables_table_raw(
-            "org_meteoschweiz/tbl_ogd_local_forecasting/raw/tre200px.json"
+            "org_meteoschweiz/dat_ogd_local_forecasting/raw/tre200px.json"
         )
 
         monkeypatch.setattr(pipeline_parameter, "NAMESPACE", s3tables_namespace)
@@ -93,7 +93,7 @@ class TestParameterPipeline:
         monkeypatch: MonkeyPatch,
     ):
         sanitize_table_name = s3tables_table_sanitize(
-            "org_meteoschweiz/tbl_ogd_local_forecasting/sanitize/tre200px.json"
+            "org_meteoschweiz/dat_ogd_local_forecasting/sanitize/tre200px.json"
         )
 
         monkeypatch.setattr(pipeline_parameter, "NAMESPACE", s3tables_namespace)
@@ -145,11 +145,11 @@ class TestParameterPipeline:
         At first, we also check the behavior when no point data is available.
         """
         point_table_name = s3tables_table_load(
-            "org_meteoschweiz/tbl_ogd_local_forecasting/load/points.json"
+            "org_meteoschweiz/dat_ogd_local_forecasting/load/points.json"
         )
 
         load_table_name = s3tables_table_load(
-            "org_meteoschweiz/tbl_ogd_local_forecasting/load/tre200px.json"
+            "org_meteoschweiz/dat_ogd_local_forecasting/load/tre200px.json"
         )
 
         monkeypatch.setattr(

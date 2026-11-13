@@ -24,7 +24,7 @@ class TestPointPipeline:
         s3, bucket_name = landing_zone
 
         table_name = s3tables_table_raw(
-            "org_meteoschweiz/tbl_ogd_local_forecasting/raw/points.json"
+            "org_meteoschweiz/dat_ogd_local_forecasting/raw/points.json"
         )
 
         monkeypatch.setattr(pipeline_point_meta, "NAMESPACE", s3tables_namespace)
@@ -109,7 +109,7 @@ class TestPointPipeline:
         self, sanitize_catalog, s3tables_table_sanitize, s3tables_namespace, monkeypatch
     ) -> None:
         sanitize_table_name = s3tables_table_sanitize(
-            "org_meteoschweiz/tbl_ogd_local_forecasting/sanitize/points.json"
+            "org_meteoschweiz/dat_ogd_local_forecasting/sanitize/points.json"
         )
 
         monkeypatch.setattr(pipeline_point_meta, "NAMESPACE", s3tables_namespace)
@@ -171,7 +171,7 @@ class TestPointPipeline:
         self, load_catalog, s3tables_table_load, s3tables_namespace, features_database, monkeypatch
     ):
         load_table_name = s3tables_table_load(
-            "org_meteoschweiz/tbl_ogd_local_forecasting/load/points.json"
+            "org_meteoschweiz/dat_ogd_local_forecasting/load/points.json"
         )
 
         monkeypatch.setattr(pipeline_point_meta, "NAMESPACE", s3tables_namespace)

@@ -1,10 +1,10 @@
-from models.service_oa_features.models.org_meteoschweiz.tbl_ogd_local_forecasting.nprohihs import (
+from models.service_oa_features.models.org_meteoschweiz.dat_ogd_local_forecasting.nprohihs import (
     OGDLocalForecastingNprohihs,
 )
-from models.service_oa_features.models.org_meteoschweiz.tbl_ogd_local_forecasting.point import (
+from models.service_oa_features.models.org_meteoschweiz.dat_ogd_local_forecasting.point import (
     OGDLocalForecastingPointMeta,
 )
-from models.service_oa_features.models.org_meteoschweiz.tbl_ogd_local_forecasting.tre200px import (
+from models.service_oa_features.models.org_meteoschweiz.dat_ogd_local_forecasting.tre200px import (
     OGDLocalForecastingTre200px,
 )
 
