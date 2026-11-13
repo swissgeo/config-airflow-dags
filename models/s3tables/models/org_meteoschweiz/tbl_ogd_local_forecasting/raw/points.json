@@ -1,98 +1,98 @@
 {
-    "tableBucketARN": "$RAW_TABLE_BUCKET_ARN",
-    "namespace": "ch_meteoschweiz",
-    "name": "local_forecast_points",
-    "format": "ICEBERG",
-    "metadata": {
-        "iceberg": {
-            "schema": {
-                "fields": [
-                    {
-                        "id": 1,
-                        "name": "point_id",
-                        "type": "long",
-                        "required": true
-                    },
-                    {
-                        "id": 2,
-                        "name": "point_type_id",
-                        "type": "long",
-                        "required": true
-                    },
-                    {
-                        "id": 3,
-                        "name": "station_abbr",
-                        "type": "string",
-                        "required": true
-                    },
-                    {
-                        "id": 4,
-                        "name": "postal_code",
-                        "type": "long",
-                        "required": false
-                    },
-                    {
-                        "id": 5,
-                        "name": "point_name",
-                        "type": "string",
-                        "required": true
-                    },
-                    {
-                        "id": 6,
-                        "name": "point_type_de",
-                        "type": "string",
-                        "required": true
-                    },
-                    {
-                        "id": 7,
-                        "name": "point_type_fr",
-                        "type": "string",
-                        "required": true
-                    },
-                    {
-                        "id": 8,
-                        "name": "point_type_it",
-                        "type": "string",
-                        "required": true
-                    },
-                    {
-                        "id": 9,
-                        "name": "point_type_en",
-                        "type": "string",
-                        "required": true
-                    },
-                    {
-                        "id": 10,
-                        "name": "point_height_masl",
-                        "type": "double",
-                        "required": true
-                    },
-                    {
-                        "id": 11,
-                        "name": "point_coordinates_lv95_east",
-                        "type": "double",
-                        "required": true
-                    },
-                    {
-                        "id": 12,
-                        "name": "point_coordinates_lv95_north",
-                        "type": "double",
-                        "required": true
-                    },
-                    {
-                        "id": 13,
-                        "name": "point_coordinates_wgs84_lat",
-                        "type": "double",
-                        "required": true
-                    },
-                    {
-                        "id": 14,
-                        "name": "point_coordinates_wgs84_lon",
-                        "type": "double",
-                        "required": true
-                    }
-                ]
-            }
-        }
+  "tableBucketARN": "$RAW_TABLE_BUCKET_ARN",
+  "namespace": "org_meteoschweiz",
+  "name": "tbl_ogd_local_forecasting_point_meta",
+  "format": "ICEBERG",
+  "metadata": {
+    "iceberg": {
+      "schema": {
+        "fields": [
+          {
+            "id": 1,
+            "name": "point_id",
+            "type": "long",
+            "required": true
+          },
+          {
+            "id": 2,
+            "name": "point_type_id",
+            "type": "long",
+            "required": true
+          },
+          {
+            "id": 3,
+            "name": "station_abbr",
+            "type": "string",
+            "required": true
+          },
+          {
+            "id": 4,
+            "name": "postal_code",
+            "type": "long",
+            "required": false
+          },
+          {
+            "id": 5,
+            "name": "point_name",
+            "type": "string",
+            "required": true
+          },
+          {
+            "id": 6,
+            "name": "point_type_de",
+            "type": "string",
+            "required": true
+          },
+          {
+            "id": 7,
+            "name": "point_type_fr",
+            "type": "string",
+            "required": true
+          },
+          {
+            "id": 8,
+            "name": "point_type_it",
+            "type": "string",
+            "required": true
+          },
+          {
+            "id": 9,
+            "name": "point_type_en",
+            "type": "string",
+            "required": true
+          },
+          {
+            "id": 10,
+            "name": "point_height_masl",
+            "type": "double",
+            "required": true
+          },
+          {
+            "id": 11,
+            "name": "point_coordinates_lv95_east",
+            "type": "double",
+            "required": true
+          },
+          {
+            "id": 12,
+            "name": "point_coordinates_lv95_north",
+            "type": "double",
+            "required": true
+          },
+          {
+            "id": 13,
+            "name": "point_coordinates_wgs84_lat",
+            "type": "double",
+            "required": true
+          },
+          {
+            "id": 14,
+            "name": "point_coordinates_wgs84_lon",
+            "type": "double",
+            "required": true
+          }
+        ]
+      }
     }
+  }
 }

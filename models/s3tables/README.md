@@ -16,7 +16,7 @@ with some explanation:
 ```json
 {
   "tableBucketARN": "$RAW_TABLE_BUCKET_ARN", # this value will be substituted by script
-  "namespace": "ch_meteoschweiz", # the namespace. Currently created in terraform
+  "namespace": "org_meteoschweiz", # the namespace. Currently created in terraform
   "name": "local_forecast_tre200px", # The tablename
   "format": "ICEBERG",
   "metadata": {
@@ -66,7 +66,7 @@ Tables cannot be delete with the AWS console but instead have to be deleted via 
 ```sh
 PROFILE=swisstopo-swissgeo-dev
 BUCKET_ARN=arn:aws:s3tables:eu-central-1:321652032171:bucket/data-ingest-load-dev-swissgeo
-NAMESPACE=ch_meteoschweiz
+NAMESPACE=org_meteoschweiz
 TABLE_NAME=local_forecast_tre200px
 
 aws s3tables delete-table --table-bucket-arn $BUCKET_ARN --namespace $NAMESPACE --name $TABLE_NAME --profile $PROFILE

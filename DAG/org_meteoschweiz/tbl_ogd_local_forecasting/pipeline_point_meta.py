@@ -4,18 +4,18 @@ from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
 from airflow.sdk.definitions.param import Param, ParamsDict
 
-from swissgeo_toolset.file.download_from_s3 import download_from_landingzone
+from swissgeo_toolset.airflow.operators.csv_from_landingzone_to_raw import (
+    CsvFromLandingzoneToRawOperator,
+)
 from swissgeo_toolset.tabular.converter import (
     add_geometry_column,
     convert_column,
     drop_columns,
-    lowercase_column_names,
 )
-from swissgeo_toolset.tabular.parser import parse_csv
 from swissgeo_toolset.tabular.reader import read_from_s3tables
 from swissgeo_toolset.tabular.writer import write_to_postgres, write_to_s3tables
 
-NAMESPACE = "ch_meteoschweiz"
+NAMESPACE = "org_meteoschweiz"
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ csv_delimiter_default = ";"
 csv_quote_char_default = '"'
 
 dag = DAG(
-    "ch_meteoschweiz-local_forecast-points",
+    "tbl_ogd-local_forecasting-point-meta",
     default_args=default_args,
     description="Local Forecast Point Pipeline",
     schedule=None,
@@ -42,19 +42,6 @@ dag = DAG(
 )
 
 
-def download_and_store_raw(
-    file_key: str,
-    encoding: str = csv_encoding_default,
-    delimiter: str = csv_delimiter_default,
-    quote_char: str = csv_quote_char_default,
-) -> None:
-    with download_from_landingzone(file_key=file_key) as file:
-        df = parse_csv(file, encoding=encoding, delimiter=delimiter, quote_char=quote_char)
-
-    df = lowercase_column_names(df)
-    write_to_s3tables(df, "raw", NAMESPACE, "local_forecast_points")
-
-
 def sanitize_data() -> None:
     """
     Sanitize the data
@@ -62,7 +49,7 @@ def sanitize_data() -> None:
     * Simplify some data types of columns; we don't need that much precision
     * Drop unused WGS84 Columns
     """
-    raw_data = read_from_s3tables("raw", NAMESPACE, "local_forecast_points")
+    raw_data = read_from_s3tables("raw", NAMESPACE, "tbl_ogd_local_forecasting_point_meta")
 
     # simplifying the data types from long to int and double to float
     # as we're clearly not in need of that length
@@ -89,7 +76,7 @@ def sanitize_data() -> None:
         without_wgs84,
         "sanitize",
         NAMESPACE,
-        "local_forecast_points",
+        "tbl_ogd_local_forecasting_point_meta",
     )
 
 
@@ -99,7 +86,9 @@ def export_data_to_features() -> None:
 
     * Convert the geometry information to a WKT geometry
     """
-    sanitized_data = read_from_s3tables("sanitize", NAMESPACE, "local_forecast_points")
+    sanitized_data = read_from_s3tables(
+        "sanitize", NAMESPACE, "tbl_ogd_local_forecasting_point_meta"
+    )
 
     with_geometry = add_geometry_column(
         sanitized_data,
@@ -115,7 +104,7 @@ def export_data_to_features() -> None:
         clean_geometry,
         "load",
         NAMESPACE,
-        "local_forecast_points",
+        "tbl_ogd_local_forecasting_point_meta",
     )
 
     write_to_postgres(
@@ -124,17 +113,16 @@ def export_data_to_features() -> None:
     )
 
 
-# Define tasks
-download_and_store_raw_task = PythonOperator(
+download_and_store_raw_task = CsvFromLandingzoneToRawOperator(
     task_id="download_and_store_raw_task",
-    python_callable=download_and_store_raw,
+    name="download_and_store_raw_task",
+    file_key="{{ params.file_key }}",
+    encoding="{{ params.csv_encoding }}",
+    delimiter="{{ params.csv_delimiter }}",
+    quote_char="{{ params.csv_quote_char }}",
+    namespace=NAMESPACE,
+    table_name="tbl_ogd_local_forecasting_point_meta",
     dag=dag,
-    op_kwargs={
-        "file_key": "{{ params.file_key }}",
-        "encoding": "{{ params.csv_encoding }}",
-        "delimiter": "{{ params.csv_delimiter }}",
-        "quote_char": "{{ params.csv_quote_char }}",
-    },
 )
 
 sanitize_task = PythonOperator(

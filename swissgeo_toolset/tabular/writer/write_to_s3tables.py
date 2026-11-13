@@ -63,4 +63,6 @@ def write_to_s3tables(
 
         table_handle.overwrite(df=arrow_table)
 
+        logger.info("Table %s written successfully", table_handle.name())
+
     return arrow_table

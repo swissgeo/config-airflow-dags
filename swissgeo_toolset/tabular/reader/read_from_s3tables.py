@@ -1,6 +1,7 @@
 import logging
 
 import pyarrow as pa
+from pyiceberg.exceptions import NoSuchTableError
 
 from swissgeo_toolset.tabular._shared.s3tables import Bucket, get_table_bucket_arn, iceberg_catalog
 
@@ -25,6 +26,11 @@ def read_from_s3tables(bucket: Bucket, namespace: str, table_name: str) -> pa.Ta
     logger.info("Reading table %s from s3 table bucket %s", table_identifier, table_bucket_arn)
 
     with iceberg_catalog(table_bucket_arn) as catalog:
-        table = catalog.load_table(table_identifier)
+        try:
+            table = catalog.load_table(table_identifier)
+        except NoSuchTableError as e:
+            raise NoSuchTableError(
+                f"Unable to load table {table_name} from bucket {table_bucket_arn}"
+            ) from e
 
         return table.scan().to_arrow()
