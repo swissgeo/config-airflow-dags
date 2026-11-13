@@ -6,6 +6,7 @@ import pyarrow as pa
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 from faker import Faker
+from psycopg.rows import dict_row
 from pyiceberg.catalog import Catalog
 from types_boto3_s3 import S3Client
 
@@ -16,6 +17,8 @@ class TestParameterPipeline:
     """Encapsulating tests in a class so that certain fixtures are stable across the tests
     and we can depend one test on another. This simulates the real life situation, where one
     task is dependent on the other
+
+    We're testing the parameter pipeline fix with the tre200px parameter
 
     THESE TESTS ARE MEANT TO BE RUN TOGETHER IN ORDER
     """
@@ -124,11 +127,12 @@ class TestParameterPipeline:
         assert test_rows[501]["datetime"] == dt.datetime(2026, 9, 1, 0, 0, tzinfo=dt.UTC)
         assert pytest.approx(test_rows[501]["value"]) == 7.3
 
-    def test_combine_and_export_data(
+    def test_combine_and_export_data(  # noqa: PLR0912, PLR0915, PLR0917
         self,
         load_catalog: Catalog,
         s3tables_table_load,
         s3tables_namespace,
+        features_database,
         monkeypatch: MonkeyPatch,
         faker: Faker,
     ):
@@ -148,21 +152,36 @@ class TestParameterPipeline:
             "org_meteoschweiz/tbl_ogd_local_forecasting/load/tre200px.json"
         )
 
+        monkeypatch.setattr(
+            pipeline_parameter,
+            "fetch_parameter_data",
+            _fake_parameter_data,
+        )
         monkeypatch.setattr(pipeline_parameter, "NAMESPACE", s3tables_namespace)
 
         # run the task without point data
         with pytest.raises(pipeline_parameter.MissingPointMetaDataError):
             # no point data available, we want to error this case
-            pipeline_parameter.combine_and_export_data(load_table_name, "tre200px")
+            pipeline_parameter.combine_and_export_data(
+                load_table_name,
+                "tbl_ogd-local-forecasting-tre200px",
+                "tre200px",
+                "irrelevant_since_monkepatched",
+            )
 
         point_data = _generate_fake_point_data(
             s3tables_namespace, point_table_name, faker, load_catalog
         )
 
         # run the task
-        pipeline_parameter.combine_and_export_data(load_table_name, "tre200px")
+        pipeline_parameter.combine_and_export_data(
+            load_table_name,
+            "tbl_ogd-local-forecasting-tre200px",
+            "tre200px",
+            "irrelevant_since_monkepatched",
+        )
 
-        # test the resulting data
+        # asserting that the data is corret in iceberg
         identifier = f"{s3tables_namespace}.{load_table_name}"
         table = load_catalog.load_table(identifier)
         result_data = table.scan().to_arrow().to_pylist()
@@ -217,6 +236,35 @@ class TestParameterPipeline:
         assert test_rows[501]["parameter_datatype"] == "Float"
         assert test_rows[501]["parameter_unit"] == "°C"
 
+        # asserting that the data is correct in the database
+        with features_database.cursor(row_factory=dict_row) as cur:
+            cur.execute("""
+                       SELECT
+                           *,
+                           ST_asText(geometry) as geometry
+                       FROM "tbl_ogd-local-forecasting-tre200px"
+                       WHERE point_id IN (501)
+                   """)
+            rows = cur.fetchall()
+
+        test_row = rows[-1]
+        assert {
+            "point_id": 501,
+            "point_type_id": 3,
+            "datetime": dt.datetime(2026, 9, 1, 0, 0, tzinfo=dt.UTC),
+            "feature_id": "501.3.tre200px.202609010000",
+            "value": 7.3,
+        }.items() <= test_row.items()
+
+        for key in point_data["501_3"]:
+            if key == "point_height_masl":
+                assert pytest.approx(test_rows[501][key]) == point_data["501_3"][key]
+            else:
+                assert test_rows[501][key] == point_data["501_3"][key]
+
+        for key in _fake_parameter_data(None, None):
+            assert test_rows[501][key] == point_data["501_3"][key]
+
 
 def _generate_fake_point_data(
     s3tables_namespace, point_table_name, faker, load_catalog
@@ -262,3 +310,21 @@ def _generate_fake_point_data(
     point_table.overwrite(point_dataframe)
 
     return point_data
+
+
+def _fake_parameter_data(_, __) -> dict:
+    return {
+        "parameter_shortname": "tre200px",
+        "parameter_description_de": "Lufttemperatur 2 m über Boden; Tagesmaximum 00:00 - 24:00",
+        "parameter_description_fr": "Température de l'air à 2 m du sol; maximum journalier",
+        "parameter_description_it": "Temperatura dell'aria a 2 m dal suolo; massima giornaliera",
+        "parameter_description_en": "Air temperature 2 m above ground; daily maximum 00:00 ",
+        "parameter_group_de": "Temperatur",
+        "parameter_group_fr": "Température",
+        "parameter_group_it": "Temperatura",
+        "parameter_group_en": "Temperature",
+        "parameter_granularity": "D",
+        "parameter_decimals": "1",
+        "parameter_datatype": "Float",
+        "parameter_unit": "°C",
+    }
