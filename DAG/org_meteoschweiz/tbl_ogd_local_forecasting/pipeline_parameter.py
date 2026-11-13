@@ -1,5 +1,8 @@
+import csv
+import io
 import logging
 
+import requests
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
 from airflow.sdk.definitions.param import Param, ParamsDict
@@ -39,6 +42,10 @@ dag = DAG(
             "csv_encoding": Param(type="string", default=csv_encoding_default),
             "csv_delimiter": Param(type="string", default=csv_delimiter_default),
             "csv_quote_char": Param(type="string", default=csv_quote_char_default),
+            "parameter_meta_url": Param(
+                type="string",
+                default="https://data.geo.admin.ch/ch.meteoschweiz.ogd-local-forecasting/ogd-local-forecasting_meta_parameters.csv",
+            ),
         }
     ),
 )
@@ -66,8 +73,8 @@ def sanitize_data(table_name: str, parameter_name: str) -> None:
 
 
 def combine_and_export_data(
-    s3tables_table_name: str, postgres_table_name: str, parameter_name: str
-) -> None:  # noqa: ARG001
+    s3tables_table_name: str, postgres_table_name: str, parameter_name: str, parameter_meta_url: str
+) -> None:
     point_data = read_from_s3tables("load", NAMESPACE, "tbl_ogd_local_forecasting_point_meta")
     sanitize_data = read_from_s3tables("sanitize", NAMESPACE, s3tables_table_name)
 
@@ -78,12 +85,12 @@ def combine_and_export_data(
 
     def feature_id_callback(row: dict) -> str:
         datetime = row["datetime"].strftime("%Y%m%d%H%M")
-        return f"{row['point_id']}.{row['point_type_id']}.tre200px.{datetime}"
+        return f"{row['point_id']}.{row['point_type_id']}.{parameter_name}.{datetime}"
 
     with_feature_id = add_column(joined_data, "feature_id", "string", feature_id_callback)
 
     parameter_meta = with_feature_id
-    for key, value in tre200px_parameter_data.items():
+    for key, value in fetch_parameter_data(parameter_meta_url, parameter_name).items():
         parameter_meta = add_column(parameter_meta, key, "string", lambda _: value)
 
     write_to_s3tables(parameter_meta, "load", NAMESPACE, s3tables_table_name)
@@ -121,6 +128,7 @@ combine_and_export_data_task = PythonOperator(
         "s3tables_table_name": "tbl_ogd_local_forecasting_{{params.parameter_name}}",
         "parameter_name": "{{params.parameter_name}}",
         "postgres_table_name": "tbl_ogd-local-forecasting-{{params.parameter_name}}",
+        "parameter_meta_url": "{{params.parameter_meta_url}}",
     },
 )
 
@@ -128,18 +136,19 @@ combine_and_export_data_task = PythonOperator(
 download_and_store_raw_task >> sanitize_data_task >> combine_and_export_data_task
 
 
-tre200px_parameter_data = {
-    "parameter_shortname": "tre200px",
-    "parameter_description_de": "Lufttemperatur 2 m über Boden; Tagesmaximum 00:00 - 24:00 Lokalzeit",
-    "parameter_description_fr": "Température de l'air à 2 m du sol; maximum journalier 00:00 - 24:00 heure locale",
-    "parameter_description_it": "Temperatura dell'aria a 2 m dal suolo; massima giornaliera 00:00 - 24:00 ora locale",
-    "parameter_description_en": "Air temperature 2 m above ground; daily maximum 00:00 - 24:00 local time",
-    "parameter_group_de": "Temperatur",
-    "parameter_group_fr": "Température",
-    "parameter_group_it": "Temperatura",
-    "parameter_group_en": "Temperature",
-    "parameter_granularity": "D",
-    "parameter_decimals": "1",
-    "parameter_datatype": "Float",
-    "parameter_unit": "°C",
-}
+def fetch_parameter_data(url: str, parameter: str) -> dict:
+    """Fetching parameter data from service-stac"""
+    response = requests.get(url, timeout=10)
+    response.raise_for_status()
+
+    reader = csv.DictReader(
+        io.StringIO(response.content.decode(csv_encoding_default)),
+        delimiter=csv_delimiter_default,
+        quotechar=csv_quote_char_default,
+    )
+
+    for row in reader:
+        if row["parameter_shortname"] == parameter:
+            return row
+
+    raise ValueError(f"Parameter '{parameter}' not found in {url}")
