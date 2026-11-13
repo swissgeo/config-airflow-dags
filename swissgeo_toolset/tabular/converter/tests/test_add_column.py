@@ -63,3 +63,11 @@ def test_add_column_without_callback():
     result = add_column(data, "b", pa.int64())
 
     assert result.column("b").to_pylist() == [None, None, None]
+
+
+def test_add_column_with_static_value():
+    data = pa.Table.from_pydict({"a": [1, 2, 3]})
+
+    result = add_column(data, "b", pa.int64(), static_value=42)
+
+    assert result.column("b").to_pylist() == [42, 42, 42]

@@ -1,5 +1,6 @@
 import logging
 from collections.abc import Callable
+from typing import Any
 
 import pyarrow as pa
 
@@ -12,6 +13,7 @@ def add_column(
     column_type: pa.DataType,
     value_callback: Callable | None = None,
     column_position: int | None = None,
+    static_value: Any | None = None,
 ) -> pa.Table:
     """Add a new column to a PyArrow Table.
 
@@ -29,6 +31,7 @@ def add_column(
                        for that row.
         column_position: Optional position to insert the column at. If None, the column
                          will be appended to the end.
+        static_value: Optional static value to use for all rows. If None, nulls will be used.
 
     Returns:
         A new pa.Table with the added column.
@@ -38,42 +41,28 @@ def add_column(
         raise TypeError(f"Data must be a pyarrow.Table, got {type(arrow_table).__name__}")
 
     if column_name in arrow_table.column_names:
-        raise ValueError(
-            f"Column '{column_name}' already exists in dataframe columns "
-            f"{list(arrow_table.column_names)}"
-        )
+        raise ValueError(f"Column '{column_name}' already exists in {arrow_table.column_names}")
 
-    if value_callback is None:
-        values = pa.nulls(arrow_table.num_rows, type=column_type)
-    else:
+    if static_value is not None and value_callback is not None:
+        raise ValueError("Provide either `value` or `value_callback`, not both")
+
+    n = arrow_table.num_rows
+    if value_callback is not None:
         values = pa.array(
-            [
-                value_callback(row)
-                for batch in arrow_table.to_batches()
-                for row in batch.to_pylist()
-            ],
+            [value_callback(row) for row in arrow_table.to_pylist()],
             type=column_type,
         )
+    elif static_value is None:
+        values = pa.nulls(n, type=column_type)
+    else:
+        # constant: one scalar repeated, no per-row Python work
+        values = pa.repeat(pa.scalar(static_value, type=column_type), n)
 
-    # ordinary pyarrow type, it can be used via the type alis
     field = pa.field(column_name, column_type)
 
-    if column_position is not None:
-        logger.info("Adding new column %s", column_name)
-        logger.debug(
-            "New column '%s' at position %s with field type %s with values %s",
-            column_name,
-            column_position,
-            field,
-            values[:10],
-        )
-        return arrow_table.add_column(column_position, field, values)
-    else:  # noqa: RET505
-        logger.info("Appending new column %s", column_name)
-        logger.debug(
-            "New column '%s' with field type %s with values %s",
-            column_name,
-            field,
-            values[:10],
-        )
-        return arrow_table.append_column(field, values)
+    column_position = (
+        column_position if column_position is not None else len(arrow_table.column_names)
+    )
+
+    logger.info("Appending new column %s at position %s", column_name, column_position)
+    return arrow_table.add_column(column_position, field, values)
